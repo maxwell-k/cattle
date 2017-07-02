@@ -16,6 +16,7 @@ Usage
     cd alpine-cattle
     curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh
     # review contents of the file for security
+    chmod u+x enter.sh
     sh enter.sh remount
     ./enter.sh install
     ./enter.sh
