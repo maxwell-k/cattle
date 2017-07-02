@@ -14,7 +14,8 @@ Usage
     sudo mkdir alpine-cattle
     sudo chown chronos:chronos alpine-cattle
     cd alpine-cattle
-    # download with curl
+    curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh
+    # review contents of the file for security
     sh enter.sh remount
     ./enter.sh install
     ./enter.sh
@@ -24,7 +25,8 @@ Background
 
 I have used a Chromebook as my main personal computer since buying an Acer C720
 in 2014. Chrome OS provides an up to date browser and a pleasant command line
-interface. I love that Chromebooks have become a ubiquitous Linux laptop available on the high-street_; and if I break one it can easily be replaced.
+interface. I love that Chromebooks have become a ubiquitous Linux laptop
+available on the high-street_; and if I break one it can easily be replaced.
 
 Originally I used a Gentoo linux ``chroot``, which required a lot of time to
 update. After attending a talk_ that used the cattle vs pets metaphor_, I
@@ -68,6 +70,7 @@ Running ``./busybox.static unshare -m`` as a normal user results in::
 
     unshare: unshare(0x20000): Operation not permitted
 
-``unprivileged_userns_clone`` is a Debian/Unbuntu feature and ``CAP_SYS_ADMIN`` appears not to work.
+``unprivileged_userns_clone`` is a Debian/Unbuntu feature and ``CAP_SYS_ADMIN``
+appears not to work.
 
 .. vim: ft=rst expandtab shiftwidth=4 tabstop=4
