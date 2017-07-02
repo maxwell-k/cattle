@@ -5,6 +5,20 @@ chroot and mount namespaces.
 .. TODO: add notes about switching to dev mode
 .. TODO: install enchant and pyenchant
 
+Usage
+-----
+
+.. code:: sh
+
+    cd /mnt/stateful_partition
+    sudo mkdir alpine-cattle
+    sudo chown chronos:chronos alpine-cattle
+    cd alpine-cattle
+    # download with curl
+    sh enter.sh remount
+    ./enter.sh install
+    ./enter.sh
+
 Background
 ----------
 

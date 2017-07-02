@@ -40,7 +40,7 @@ ac_setup_profile() {
 	test -f chroot/etc/profile.d/set_vi.sh ||
 	sudo -- sh -c 'printf "set -o vi\n" >> chroot/etc/profile.d/set_vi.sh'
 	sudo -- sed -i '/^set nomodeline$/d' chroot/etc/vim/vimrc &&
-	printf 'set noincsearch\n' |
+	printf 'set smartcase noincsearch\n' |
 		sudo -- sh -c 'cat - >> chroot/home/chronos/.vimrc' &&
 	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
 		sudo -- sh -c 'cat - > chroot/etc/sudoers.d/95_chronos' &&
@@ -48,6 +48,7 @@ ac_setup_profile() {
 	true
 }
 
+test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
 	ac_get_aci &&
@@ -58,6 +59,7 @@ install)
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
+			-r 'http://dl-3.alpinelinux.org/alpine/edge/testing/' \
 			&&
 	-p vim
 	-p git
@@ -65,7 +67,7 @@ install)
 	-p python3
 	-p less # for git diff
 	-p sudo # required for elevation
-	-p moreutils # for vidir
+	-p moreutils # for vidir in edge/testing
 	EOF
 	ac_setup_profile &&
 	true
