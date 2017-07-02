@@ -38,10 +38,11 @@ ac_setup_profile() {
 	test -f chroot/etc/profile.d/color_prompt &&
 	( cd chroot/etc/profile.d/ && sudo mv color_prompt color_prompt.sh ) &&
 	test -f chroot/etc/profile.d/set_vi.sh ||
-	sudo -- sh -c 'printf "set -o vi\n" >> chroot/etc/profile.d/set_vi.sh'
+	printf 'set -o vi\nexport EDITOR=vim\n' |
+		sudo -- sh -c 'cat - > chroot/etc/profile.d/set_vi.sh'
 	sudo -- sed -i '/^set nomodeline$/d' chroot/etc/vim/vimrc &&
 	printf 'set smartcase noincsearch\n' |
-		sudo -- sh -c 'cat - >> chroot/home/chronos/.vimrc' &&
+		sudo -- sh -c 'cat - > chroot/home/chronos/.vimrc' &&
 	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
 		sudo -- sh -c 'cat - > chroot/etc/sudoers.d/95_chronos' &&
 	sudo -- sh -c "printf 'chronos:x:1000:\n' >> chroot/etc/group" &&
