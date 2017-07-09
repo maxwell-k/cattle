@@ -66,6 +66,8 @@ install)
 	-p git
 	-p openssl
 	-p python3
+	-p git-perl # for git add -p
+	-p git-doc # for git help
 	-p less # for git diff
 	-p sudo # required for elevation
 	-p moreutils # for vidir in edge/testing
