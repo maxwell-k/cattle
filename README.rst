@@ -4,9 +4,16 @@ chroot and mount namespaces.
 .. TODO: support separate environments
 .. TODO: add notes about switching to dev mode
 .. TODO: install enchant and pyenchant
+.. TODO: delete env.sh and enter-chroot
+.. TODO: alias
+.. TODO: host name
+.. TODO: man page viewer for git help
+.. TODO: git username and email
 
 Usage
 -----
+
+The script is designed to be installed under ``/mnt/stateful_partition``.
 
 .. code:: sh
 
@@ -20,6 +27,10 @@ Usage
     sh enter.sh remount
     ./enter.sh install
     ./enter.sh
+
+The script can also be called with an absolute path, for example::
+
+    sh /mnt/stateful_partition/alpine-cattle/enter.sh
 
 Background
 ----------
@@ -73,5 +84,14 @@ Running ``./busybox.static unshare -m`` as a normal user results in::
 
 ``unprivileged_userns_clone`` is a Debian/Unbuntu feature and ``CAP_SYS_ADMIN``
 appears not to work.
+
+Developing
+----------
+
+..code:: sh
+
+    git init
+    git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle
+    git fetch
 
 .. vim: ft=rst expandtab shiftwidth=4 tabstop=4
