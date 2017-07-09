@@ -94,6 +94,12 @@ remount)
 	ac_get_exec_stateful_partition &&
 	ac_get_suid_stateful_partition &&
 	cd $(dirname "${0}") &&
+	if test -f chroot/etc/resolv.conf ; then
+		sudo rm -f chroot/etc/resolv.conf
+	fi &&
+	if test -f /etc/resolv.conf ; then
+		sudo cp /etc/resolv.conf chroot/etc/
+	fi &&
 	test -d chroot || { printf "Not setup\n" ; exit 1 ; } &&
 	sudo ./busybox.static unshare -m --propagation=slave $0 inside
 	;;
