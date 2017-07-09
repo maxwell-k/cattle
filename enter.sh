@@ -91,9 +91,10 @@ remount)
 	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
-	test -d chroot || { printf "Not setup\n" ; exit 1 ; } &&
 	ac_get_exec_stateful_partition &&
 	ac_get_suid_stateful_partition &&
+	cd $(dirname "${0}") &&
+	test -d chroot || { printf "Not setup\n" ; exit 1 ; } &&
 	sudo ./busybox.static unshare -m --propagation=slave $0 inside
 	;;
 esac
