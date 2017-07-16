@@ -9,6 +9,14 @@ chroot and mount namespaces.
 .. TODO: host name
 .. TODO: man page viewer for git help
 .. TODO: git username and email
+.. TODO: chronos to own ~/.vimrc
+.. TODO: replace less with:
+    man() {
+        # no version information in file path
+        # fully portable
+        PAGER="cat" /usr/bin/man $@ |\
+        MAN_PN=1 vim -M "+runtime ftplugin/man.vim" +MANPAGER -
+    }
 
 Usage
 -----
@@ -93,5 +101,6 @@ Developing
     git init
     git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle
     git fetch
+    git reset FETCH_HEAD
 
 .. vim: ft=rst expandtab shiftwidth=4 tabstop=4
