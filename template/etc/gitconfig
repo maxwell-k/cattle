@@ -1,2 +1,9 @@
 [color]
 	diff = false
+[man]
+	viewer = MANPAGER
+[man "MANPAGER"]
+	cmd = "git_man() { vim -M '+runtime ftplugin/man.vim' \"+Man $1\"\
+	'+only' ; } ; git_man"
+[core]
+	pager = vim -RM -
