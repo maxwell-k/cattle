@@ -55,6 +55,7 @@ install)
 	ac_get_aci &&
 	ac_get_busybox &&
 	ac_get_exec_stateful_partition &&
+	cp -R "$PWD/template" "$PWD/chroot" &&
 	sed -e 's/#.*$//' <<-EOF | xargs sudo ./busybox.static \
 		unshare -m --propagation=slave \
 		./alpine-chroot-install \
@@ -90,6 +91,8 @@ inside)
 		mount --rbind "/$i" "chroot/$i" || exit 1
 	done &&
 	mount -t proc none chroot/proc &&
+	mount -o bind /home/chronos/user/Downloads \
+		chroot/home/chronos/.Downloads &&
 	chroot chroot su -l chronos
 	;;
 remount)
