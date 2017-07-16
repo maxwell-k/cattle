@@ -4,7 +4,7 @@ NORMAL="\[\e[0m\]"
 RED="\[\e[1;31m\]"
 GREEN="\[\e[1;32m\]"
 if [ "$USER" = root ]; then
-	PS1="\$? $RED[$NORMAL\w$RED]# $NORMAL"
+	PS1="\$? $RED[$NORMAL\$(pwd | tail -c 20)$RED]# $NORMAL"
 else
-	PS1="\$? $GREEN[$NORMAL\w$GREEN]\$ $NORMAL"
+	PS1="\$? $GREEN[$NORMAL\$(pwd | tail -c 20)$GREEN]\$ $NORMAL"
 fi
