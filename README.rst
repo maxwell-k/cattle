@@ -1,23 +1,6 @@
 A simple script to setup a development environment on a Chromebook. Uses a
 chroot and mount namespaces.
 
-.. TODO: support separate environments
-.. TODO: add notes about switching to dev mode
-.. TODO: install enchant and pyenchant
-.. TODO: delete env.sh and enter-chroot
-.. TODO: alias
-.. TODO: host name
-.. TODO: man page viewer for git help
-.. TODO: git username and email
-.. TODO: chronos to own ~/.vimrc
-.. TODO: replace less with:
-    man() {
-        # no version information in file path
-        # fully portable
-        PAGER="cat" /usr/bin/man $@ |\
-        MAN_PN=1 vim -M "+runtime ftplugin/man.vim" +MANPAGER -
-    }
-
 Usage
 -----
 

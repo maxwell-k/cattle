@@ -35,8 +35,6 @@ ac_get_suid_stateful_partition() {
 }
 
 ac_setup_profile() {
-	test -f chroot/etc/profile.d/color_prompt &&
-	( cd chroot/etc/profile.d/ && sudo mv color_prompt color_prompt.sh ) &&
 	sudo -- sed -i '/^set nomodeline$/d' chroot/etc/vim/vimrc &&
 	sudo -- sh -c "printf 'chronos:x:1000:\n' >> chroot/etc/group" &&
 	true
@@ -45,10 +43,10 @@ ac_setup_profile() {
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
+	cd $(dirname "${0}") &&
 	ac_get_aci &&
 	ac_get_busybox &&
 	ac_get_exec_stateful_partition &&
-	cp -R "$PWD/template" "$PWD/chroot" &&
 	sed -e 's/#.*$//' <<-EOF | xargs sudo ./busybox.static \
 		unshare -m --propagation=slave \
 		./alpine-chroot-install \
@@ -65,11 +63,14 @@ install)
 	-p man # for git help
 	-p man-pages # for git help
 	-p mdocml-apropos # for git help
-	-p less # for git diff
+	-p util-linux # for man
+	-p util-linux-doc # for man
 	-p sudo # required for elevation
 	-p moreutils # for vidir in edge/testing
 	EOF
 	ac_setup_profile &&
+	sudo cp -R template/* chroot/ &&
+	sudo rm -f chroot/enter-chroot chroot/env.sh &&
 	true
 	;;
 inside)
@@ -95,13 +96,14 @@ remount)
 	ac_get_exec_stateful_partition &&
 	ac_get_suid_stateful_partition &&
 	cd $(dirname "${0}") &&
+	test -d chroot ||
+	{ printf "Not setup: run \`${0} install\` first \n" ; exit 1 ; } &&
 	if test -f chroot/etc/resolv.conf ; then
 		sudo rm -f chroot/etc/resolv.conf
 	fi &&
 	if test -f /etc/resolv.conf ; then
 		sudo cp /etc/resolv.conf chroot/etc/
 	fi &&
-	test -d chroot || { printf "Not setup\n" ; exit 1 ; } &&
 	sudo ./busybox.static unshare -m --propagation=slave $0 inside
 	;;
 esac
