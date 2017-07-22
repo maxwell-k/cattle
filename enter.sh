@@ -68,6 +68,7 @@ install)
 	-p man # for git help
 	-p man-pages # for git help
 	-p mdocml-apropos # for git help
+	-p openssh # for git push
 	-p util-linux # for man
 	-p util-linux-doc # for man
 	-p sudo # required for elevation
