@@ -27,11 +27,12 @@ Then restore the configuration:
 
 .. code:: sh
 
+    cd /mnt/stateful_partition/alpine-cattle &&
     git init &&
     git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle.git &&
     git fetch &&
     git reset FETCH_HEAD &&
-    git checkout .
+    sudo git checkout .
 
 Background
 ----------
