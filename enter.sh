@@ -104,6 +104,6 @@ remount)
 	if test -f /etc/resolv.conf ; then
 		sudo cp /etc/resolv.conf chroot/etc/
 	fi &&
-	sudo ./busybox.static unshare -m --propagation=slave $0 inside
+	sudo ./busybox.static unshare -m --propagation=slave "$(pwd)/$(basename $0)" inside
 	;;
 esac
