@@ -32,7 +32,9 @@ Then restore the configuration:
     git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle.git &&
     git fetch &&
     git reset FETCH_HEAD &&
-    sudo git checkout .
+    sudo git checkout chroot/etc &&
+    git checkout . &&
+    source /etc/profile
 
 Background
 ----------
