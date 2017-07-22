@@ -15,14 +15,24 @@ The script is designed to be installed under ``/mnt/stateful_partition``.
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
-Review the contents of ``enter.sh`` then install:
-  
+Review the contents of ``enter.sh`` then install::
+
   sh /mnt/stateful_partition/alpine-cattle/enter.sh install
 
-Enter the ``chroot``:
+Enter the ``chroot``::
 
   sh /mnt/stateful_partition/alpine-cattle/enter.sh
-  
+
+Then restore the configuration:
+
+.. code:: sh
+
+    git init &&
+    git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle.git &&
+    git fetch &&
+    git reset FETCH_HEAD &&
+    git checkout .
+
 Background
 ----------
 
@@ -75,15 +85,5 @@ Running ``./busybox.static unshare -m`` as a normal user results in::
 
 ``unprivileged_userns_clone`` is a Debian/Unbuntu feature and ``CAP_SYS_ADMIN``
 appears not to work.
-
-Developing
-----------
-
-..code:: sh
-
-    git init
-    git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle
-    git fetch
-    git reset FETCH_HEAD
 
 .. vim: ft=rst expandtab shiftwidth=4 tabstop=4

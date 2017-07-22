@@ -37,6 +37,11 @@ ac_get_suid_stateful_partition() {
 ac_setup_profile() {
 	sudo -- sed -i '/^set nomodeline$/d' chroot/etc/vim/vimrc &&
 	sudo -- sh -c "printf 'chronos:x:1000:\n' >> chroot/etc/group" &&
+	test -d chroot/etc/sudoers.d ||
+	sudo -- mkdir chroot/etc/sudoers.d &&
+	test -f chroot/etc/sudoers.d/95_chronos ||
+	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
+	sudo -- tee chroot/etc/sudoers.d/95_chronos >> /dev/null &&
 	true
 }
 
@@ -69,7 +74,6 @@ install)
 	-p moreutils # for vidir in edge/testing
 	EOF
 	ac_setup_profile &&
-	sudo cp -R template/* chroot/ &&
 	sudo rm -f chroot/enter-chroot chroot/env.sh &&
 	true
 	;;
@@ -85,6 +89,12 @@ inside)
 		mount --rbind "/$i" "chroot/$i" || exit 1
 	done &&
 	mount -t proc none chroot/proc &&
+	if test ! -d chroot/home/chronos/.Downloads ; then
+		test -d chroot/home || mkdir chroot/home &&
+		test -d chroot/home/chronos || mkdir chroot/home/chronos &&
+		mkdir chroot/home/chronos/.Downloads &&
+		chown -R chronos:chronos chroot/home/chronos
+	fi &&
 	mount -o bind /home/chronos/user/Downloads \
 		chroot/home/chronos/.Downloads &&
 	chroot chroot su -l chronos
@@ -104,6 +114,7 @@ remount)
 	if test -f /etc/resolv.conf ; then
 		sudo cp /etc/resolv.conf chroot/etc/
 	fi &&
-	sudo ./busybox.static unshare -m --propagation=slave "$(pwd)/$(basename $0)" inside
+	sudo ./busybox.static unshare -m --propagation=slave \
+		"$(pwd)/$(basename $0)" inside
 	;;
 esac

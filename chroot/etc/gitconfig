@@ -10,3 +10,4 @@
 [pager]
 	log = false
 	diff = false
+	grep = false
