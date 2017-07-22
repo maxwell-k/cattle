@@ -8,21 +8,21 @@ The script is designed to be installed under ``/mnt/stateful_partition``.
 
 .. code:: sh
 
-    cd /mnt/stateful_partition
-    sudo mkdir alpine-cattle
-    sudo chown chronos:chronos alpine-cattle
-    cd alpine-cattle
-    curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh
-    # review contents of the file for security
-    chmod u+x enter.sh
-    sh enter.sh remount
-    ./enter.sh install
-    ./enter.sh
+  cd /mnt/stateful_partition &&
+  sudo mkdir alpine-cattle &&
+  sudo chown chronos:chronos alpine-cattle &&
+  cd alpine-cattle &&
+  curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
+  chmod u+x enter.sh
 
-The script can also be called with an absolute path, for example::
+Review the contents of ``enter.sh`` then install:
+  
+  sh /mnt/stateful_partition/alpine-cattle/enter.sh install
 
-    sh /mnt/stateful_partition/alpine-cattle/enter.sh
+Enter the ``chroot``:
 
+  sh /mnt/stateful_partition/alpine-cattle/enter.sh
+  
 Background
 ----------
 
