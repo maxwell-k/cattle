@@ -18,7 +18,7 @@ osc52() {
 	if test -t 0 ; then
 		printf "\x1b]52;c;%s\x07" $(printf "$1" | base64)
 	else
-		printf "\x1b]52;c;%s\x07" "$(base64)"
+		printf "\x1b]52;c;"; base64 | tr -d "\n" ; printf "\x07"
 	fi
 }
 
