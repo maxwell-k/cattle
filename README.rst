@@ -4,30 +4,31 @@ chroot and mount namespaces.
 Usage
 -----
 
-The script is designed to be installed under ``/mnt/stateful_partition``.
+The script is designed to be installed under ``/mnt/stateful_partition``,
+replace ``example`` in the steps below with your choice of directory.
 
 .. code:: sh
 
   cd /mnt/stateful_partition &&
-  sudo mkdir alpine-cattle &&
-  sudo chown chronos:chronos alpine-cattle &&
-  cd alpine-cattle &&
+  sudo mkdir example &&
+  sudo chown chronos:chronos example &&
+  cd example &&
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
 Review the contents of ``enter.sh`` then install::
 
-  sh /mnt/stateful_partition/alpine-cattle/enter.sh install
+  sh ./enter.sh install
 
 Enter the ``chroot``::
 
-  sh /mnt/stateful_partition/alpine-cattle/enter.sh
+  sh ./enter.sh
 
 Then restore the configuration:
 
 .. code:: sh
 
-    cd /mnt/stateful_partition/alpine-cattle &&
+    cd /mnt/stateful_partition/example &&
     git init &&
     git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle.git &&
     git fetch &&
