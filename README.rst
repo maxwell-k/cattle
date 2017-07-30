@@ -22,7 +22,7 @@ Review the contents of ``enter.sh`` then install::
 
 Enter the ``chroot``::
 
-  sh ./enter.sh
+  ./enter.sh
 
 Then restore the configuration:
 
