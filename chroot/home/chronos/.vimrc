@@ -1,3 +1,3 @@
 " ~/.vimrc:
-set smartcase noincsearch
+set smartcase ignorecase noincsearch 
 map Y y$
