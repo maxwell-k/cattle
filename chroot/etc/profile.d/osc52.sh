@@ -24,6 +24,7 @@ osc52() {
 
 yy() {
 	# Copy the last command to the ChromeOS clipboard
-	sed -n '$!h;$g;$p' $HISTFILE |
+	history |
+	sed -n '$!h;$g;s,^ \+[0-9]\+ \+,,;$p' |
 	osc52
 }
