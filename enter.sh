@@ -90,6 +90,7 @@ inside)
 		mount --rbind "/$i" "chroot/$i" || exit 1
 	done &&
 	mount -t proc none chroot/proc &&
+	mount --bind /etc/resolv.conf chroot/etc/resolv.conf &&
 	if test ! -d chroot/home/chronos/.Downloads ; then
 		test -d chroot/home || mkdir chroot/home &&
 		test -d chroot/home/chronos || mkdir chroot/home/chronos &&
@@ -109,11 +110,8 @@ remount)
 	cd $(dirname "${0}") &&
 	test -d chroot ||
 	{ printf "Not setup: run \`${0} install\` first \n" ; exit 1 ; } &&
-	if test -f chroot/etc/resolv.conf ; then
-		sudo rm -f chroot/etc/resolv.conf
-	fi &&
-	if test -f /etc/resolv.conf ; then
-		sudo cp /etc/resolv.conf chroot/etc/
+	if test ! -f chroot/etc/resolv.conf ; then
+		sudo touch chroot/etc/resolv.conf
 	fi &&
 	sudo ./busybox.static unshare -m --propagation=slave \
 		"$(pwd)/$(basename $0)" inside
