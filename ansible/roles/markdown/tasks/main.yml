@@ -1,0 +1,28 @@
+---
+- git:
+    repo: https://github.com/moorereason/vim-markdownfmt
+    dest: /usr/share/vim/vimfiles/pack/markdown/opt/vim-markdownfmt
+- lineinfile:
+    path: /etc/apk/repositories
+    line: https://nl.alpinelinux.org/alpine/v3.6/community
+- apk:
+    name: libc-dev, go
+- name: Install markdownfmt with `go get`
+  shell: |
+    GOPATH=/tmp/go GOBIN=/usr/local/bin \
+      go get -u github.com/shurcooL/markdownfmt &&
+    rm -rf /tmp/go
+  args:
+    creates: /usr/local/bin/markdownfmt
+- file:
+    path: /usr/share/vim/vimfiles/ftplugin/
+    state: directory
+    mode: 0755
+- copy:
+    dest: /usr/share/vim/vimfiles/ftplugin/markdown.vim
+    content: |
+      packadd vim-markdownfmt
+      augroup markdownfmt
+        autocmd!
+        autocmd BufWritePre <buffer> call markdownfmt#Format()
+      augroup END

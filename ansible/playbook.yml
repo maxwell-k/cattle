@@ -1,0 +1,91 @@
+---
+- name: Create groups to run different plays on different distributions
+  hosts: all
+  tasks:
+  - group_by: key={{ ansible_distribution }}
+
+- name: Setup command line shell on Chrome OS
+  hosts: Chrome-OS
+  tasks:
+    - name: bashrc
+      lineinfile:
+        path: /home/chronos/user/.bashrc
+        line: "set -o vi"
+    - file:
+        path: /usr/local/etc/profile.d/
+        state: directory
+        mode: 0755
+    - copy:
+        src: ../chroot/etc/profile.d/osc52.sh
+        dest: /usr/local/etc/profile.d/
+    - name: bashrc
+      lineinfile:
+        path: /home/chronos/user/.bashrc
+        line: "for i in /usr/local/etc/profile.d/*.sh ; do \
+               if [ -r $i ] ; then . $i; fi ; done"
+
+- name: Install vim-markdownfmt under Alpine
+  hosts: Alpine
+  remote_user: root
+  roles:
+    - markdown
+
+- name: Install git-jump if missing and git is installed
+  hosts: all
+  tasks:
+  - name: Check git version
+    shell: git --version
+    register: git_version
+    changed_when: False
+    ignore_errors: yes
+  - name: which git-jump
+    shell: which git-jump
+    register: which_git_jump
+    changed_when: False
+    ignore_errors: yes
+  - name: Install git_jump
+    when: >
+      not ansible_check_mode
+      and git_version.rc == 0
+      and which_git_jump != 0
+    get_url:
+      url: "https://raw.githubusercontent.com/git/git/master/\
+            contrib/git-jump/git-jump"
+      dest: /usr/local/bin/git-jump
+      mode: 0755
+
+- name: Install osc52.vim on Alpine
+  hosts: Alpine
+  tasks:
+    - file:
+        path: /usr/share/vim/vimfiles/plugin/
+        state: directory
+        mode: 0755
+    - get_url:
+        url: "https://raw.githubusercontent.com/chromium/hterm/master/\
+              etc/osc52.vim"
+        dest: /usr/share/vim/vimfiles/plugin/
+
+- name: Install opfunc.vim under Alpine
+  hosts: Alpine
+  tasks:
+    - file:
+        path: /usr/share/vim/vimfiles/autoload/
+        state: directory
+        mode: 0755
+    - name: copy opfunc.vim from removable media
+      ignore_errors: yes
+      register: opfunc_copy
+      copy:
+        src: "/media/removable/DATA/configuration/\
+              runtimepath/autoload/opfunc.vim"
+        dest: /usr/share/vim/vimfiles/autoload/
+    - when: not ansible_check_mode and opfunc_copy.size is defined
+      file:
+        path: /usr/share/vim/vimfiles/plugin/
+        state: directory
+        mode: 0755
+    - when: not ansible_check_mode and opfunc_copy.size is defined
+      copy:
+        dest: /usr/share/vim/vimfiles/plugin/opfunc.vim
+        content: call opfunc#All()
