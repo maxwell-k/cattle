@@ -17,9 +17,9 @@
    creates: /usr/local/bin/markdownfmt
 - name: Clean up after `go get`
   file: path=/tmp/go state=absent
-- name: vim ftplugin directory for markdownfmt settings
+- name: vim ftplugin directory for settings
   file: path=/usr/share/vim/vimfiles/ftplugin/ state=directory mode=0755
-- name: Use vim-markdownfmt to write markdown files
+- name: Custom vim settings in ftplugin
   copy:
     dest: /usr/share/vim/vimfiles/ftplugin/markdown.vim
     content: |

@@ -18,3 +18,18 @@
   apk: # py3-ansible-lint depends on ansible which fails under py3
     name: py2-ansible-lint py2-packaging
     update_cache: yes
+- name: Download syntastic
+  git:
+    repo: https://github.com/vim-syntastic/syntastic
+    dest: /usr/share/vim/vimfiles/pack/vim-ansible/opt/syntastic
+    version: 8ab7705b21cbe5f1c70750dee89bf8b711890a82
+- name: Generate help tags
+  command: vim -c ":helptags . | quit"
+  args: { chdir: /usr/share/vim/vimfiles/pack/vim-ansible/opt/syntastic/doc }
+- name: vim ftplugin directory for settings
+  file: path=/usr/share/vim/vimfiles/ftplugin/ state=directory mode=0755
+- name: Custom vim settings in ftplugin
+  copy:
+    dest: /usr/share/vim/vimfiles/ftplugin/ansible.vim
+    content: |
+      packadd syntastic
