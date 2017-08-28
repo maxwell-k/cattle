@@ -4,7 +4,8 @@
   hosts: all
   tags: always
   tasks:
-  - group_by: key={{ ansible_distribution }}
+  - name: Group by distribution
+    group_by: key={{ ansible_distribution }}
 
 - name: Setup command line shell on Chrome OS
   hosts: Chrome-OS
@@ -12,14 +13,11 @@
   become_user: root
   gather_facts: false
   tasks:
-    - file:
-        path: /usr/local/etc/profile.d/
-        state: directory
-        mode: 0755
-    - copy:
-        src: ../chroot/etc/profile.d/osc52.sh
-        dest: /usr/local/etc/profile.d/
-    - name: .bashrc
+    - name: Folder for shell profile settings
+      file: path=/usr/local/etc/profile.d/ state=directory mode=0755
+    - name: Copy OSC52 functions into profile
+      copy: src=../chroot/etc/profile.d/osc52.sh dest=/usr/local/etc/profile.d/
+    - name: Write settings to ~/.bashrc
       lineinfile:
         path: /home/chronos/user/.bashrc
         line: "{{ item }}"
@@ -61,21 +59,21 @@
   become_user: root
   gather_facts: no
   tasks:
-  - name: Check git version
-    shell: git --version
-    register: git_version
+  - name: Check if git is available
+    command: which git
+    register: which_git
     changed_when: False
     ignore_errors: yes
-  - name: which git-jump
-    shell: which git-jump
+  - name:  Check if git-jump is available
+    command: which git-jump
     register: which_git_jump
     changed_when: False
     ignore_errors: yes
   - name: Install git_jump
     when: >
       not ansible_check_mode
-      and git_version.rc == 0
-      and which_git_jump != 0
+      and which_git.rc == 0
+      and which_git_jump.rc != 0
     get_url:
       url: "https://raw.githubusercontent.com/git/git/master/\
             contrib/git-jump/git-jump"
@@ -88,8 +86,11 @@
   become_user: root
   gather_facts: no
   tasks:
-    - file: path=/usr/share/vim/vimfiles/plugin/ state=directory mode=0755
-    - get_url:
+    - name: Create a directory for osc52.vim
+      file: path=/usr/share/vim/vimfiles/plugin/ state=directory mode=0755
+    - name: Download osc52.vim
+      get_url:
+        dest: /usr/share/vim/vimfiles/plugin/
         url: "https://raw.githubusercontent.com/chromium/hterm/master/\
               etc/osc52.vim"
         dest: /usr/share/vim/vimfiles/plugin/
@@ -121,13 +122,21 @@
 - name: Set timezone on Alpine
   hosts: Alpine
   tags: timezone
-  remote_user: root
+  become: true
+  become_user: root
+  handlers:
+    - name: Install time-zone data
+      listen: Timezone changed
+      apk: name=tzdata state=present
+    - name: Write time-zone file to /etc
+      listen: Timezone changed
+      copy: src=/usr/share/zoneinfo/Europe/Belfast dest=/etc/localtime
   tasks:
     - name: Update /etc/timezone
       register: timezone
-      copy: dest=/etc/timezone content=Europe/Belfast
-    - when: timezone.changed
-      apk: name=tzdata state=present
-    - when: timezone.changed
-      copy: src=/usr/share/zoneinfo/Europe/Belfast dest=/etc/localtime
-    - apk: name=tzdata state=absent
+      copy: dest=/etc/timezone content="Europe/Belfast\n"
+      notify: Timezone changed
+    - meta: flush_handlers
+    - name: Remove time-zone data
+      apk: name=tzdata state=absent
+

@@ -1,21 +1,20 @@
 ---
-- git:
-    # Difficult to use as an optional package
+- name: Download ansible-vim # Difficult to use as an optional package
+  git:
     repo: https://github.com/pearofducks/ansible-vim
     dest: /usr/share/vim/vimfiles/pack/vim-ansible/start/ansible-vim
-- file:
-    path: /usr/share/vim/vimfiles/after/indent/
-    state: directory
-    mode: 0755
+    version: bf352d2fb7784a975733fff417fe0d7140166c0d
+- name: Directory for simple indent settings
+  file: path=/usr/share/vim/vimfiles/after/indent/ state=directory mode=0755
 - name: Simple indenting
   copy:
     dest: /usr/share/vim/vimfiles/after/indent/ansible.vim
     content: set autoindent& cindent& smartindent& indentexpr&
-- lineinfile:
+- name: Make Alpine Linux edge test repository available for ansible-lint
+  lineinfile:
     line: https://nl.alpinelinux.org/alpine/edge/testing
     path: /etc/apk/repositories
-- name: install ansible-lint
-  apk:
-    # py3-ansible-lint depends on ansible which fails under py3
+- name: Install ansible-lint
+  apk: # py3-ansible-lint depends on ansible which fails under py3
     name: py2-ansible-lint py2-packaging
     update_cache: yes
