@@ -7,10 +7,14 @@
 - name: Setup command line shell on Chrome OS
   hosts: Chrome-OS
   tasks:
-    - name: bashrc
+    - name: vi mode
       lineinfile:
         path: /home/chronos/user/.bashrc
         line: "set -o vi"
+    - name: alias
+      lineinfile:
+        path: /home/chronos/user/.bashrc
+        line: 'alias ac="{{ playbook_dir | dirname }}/enter.sh"'
     - file:
         path: /usr/local/etc/profile.d/
         state: directory
