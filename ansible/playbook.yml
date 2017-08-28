@@ -1,20 +1,13 @@
 ---
 - name: Create groups to run different plays on different distributions
   hosts: all
+  tags: always
   tasks:
   - group_by: key={{ ansible_distribution }}
 
 - name: Setup command line shell on Chrome OS
   hosts: Chrome-OS
   tasks:
-    - name: vi mode
-      lineinfile:
-        path: /home/chronos/user/.bashrc
-        line: "set -o vi"
-    - name: alias
-      lineinfile:
-        path: /home/chronos/user/.bashrc
-        line: 'alias ac="{{ playbook_dir | dirname }}/enter.sh"'
     - file:
         path: /usr/local/etc/profile.d/
         state: directory
@@ -22,11 +15,15 @@
     - copy:
         src: ../chroot/etc/profile.d/osc52.sh
         dest: /usr/local/etc/profile.d/
-    - name: bashrc
+    - name: .bashrc
       lineinfile:
         path: /home/chronos/user/.bashrc
-        line: "for i in /usr/local/etc/profile.d/*.sh ; do \
-               if [ -r $i ] ; then . $i; fi ; done"
+        line: "{{ item }}"
+      with_items:
+        - "set -o vi"
+        - 'alias ac="{{ playbook_dir | dirname }}/enter.sh"'
+        - "for i in /usr/local/etc/profile.d/*.sh ; do \
+           if [ -r $i ] ; then . $i; fi ; done"
 
 - name: Install vim-markdownfmt under Alpine
   hosts: Alpine
