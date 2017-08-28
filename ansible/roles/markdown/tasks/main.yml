@@ -23,12 +23,12 @@
   copy:
     dest: /usr/share/vim/vimfiles/ftplugin/markdown.vim
     content: |
+      setlocal spell tabstop=3 shiftwidth=3
       packadd vim-markdownfmt
       augroup markdownfmt
         autocmd!
         autocmd BufWritePre <buffer> call markdownfmt#Format()
       augroup END
-      setlocal spell
 - name: Directory for disabling spell checking of modelines
   file: state=directory path=/usr/share/vim/vimfiles/after/syntax mode=0755
 - name: Disable spell checking of HTML coments for modelines
