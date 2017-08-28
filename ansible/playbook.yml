@@ -31,6 +31,12 @@
   roles:
     - markdown
 
+- name: Install binaries on Chrome OS
+  hosts: Chrome-OS
+  tags: chrome-os-binaries
+  roles:
+    -   chrome-os-binaries
+
 - name: Install git-jump if missing and git is installed
   hosts: all
   tasks:
