@@ -28,6 +28,7 @@ ac_get_exec_stateful_partition() {
 		sudo mount -o remount,exec /mnt/stateful_partition
 	fi
 }
+
 ac_get_suid_stateful_partition() {
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition
