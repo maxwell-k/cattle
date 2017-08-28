@@ -90,3 +90,25 @@
       copy:
         dest: /usr/share/vim/vimfiles/plugin/opfunc.vim
         content: call opfunc#All()
+
+- name: Set timezone on Alpine
+  hosts: Alpine
+  tags: timezone
+  remote_user: root
+  tasks:
+    - name: Update /etc/timezone
+      register: timezone
+      copy:
+        dest: /etc/timezone
+        content: Europe/Belfast
+    - when: timezone.changed
+      apk:
+        name: tzdata
+        state: present
+    - when: timezone.changed
+      copy:
+        src: /usr/share/zoneinfo/Europe/Belfast
+        dest: /etc/localtime
+    - apk:
+        name: tzdata
+        state: absent
