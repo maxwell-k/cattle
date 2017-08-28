@@ -7,6 +7,9 @@
 
 - name: Setup command line shell on Chrome OS
   hosts: Chrome-OS
+  become: true
+  become_user: root
+  gather_facts: false
   tasks:
     - file:
         path: /usr/local/etc/profile.d/
@@ -27,18 +30,26 @@
 
 - name: Install vim-markdownfmt under Alpine
   hosts: Alpine
-  remote_user: root
+  become: true
+  become_user: root
+  gather_facts: false
   roles:
     - markdown
 
 - name: Install binaries on Chrome OS
   hosts: Chrome-OS
   tags: chrome-os-binaries
+  become: true
+  become_user: root
+  gather_facts: no
   roles:
     -   chrome-os-binaries
 
 - name: Install git-jump if missing and git is installed
   hosts: all
+  become: true
+  become_user: root
+  gather_facts: no
   tasks:
   - name: Check git version
     shell: git --version
@@ -63,11 +74,11 @@
 
 - name: Install osc52.vim on Alpine
   hosts: Alpine
+  become: true
+  become_user: root
+  gather_facts: no
   tasks:
-    - file:
-        path: /usr/share/vim/vimfiles/plugin/
-        state: directory
-        mode: 0755
+    - file: path=/usr/share/vim/vimfiles/plugin/ state=directory mode=0755
     - get_url:
         url: "https://raw.githubusercontent.com/chromium/hterm/master/\
               etc/osc52.vim"
@@ -104,17 +115,9 @@
   tasks:
     - name: Update /etc/timezone
       register: timezone
-      copy:
-        dest: /etc/timezone
-        content: Europe/Belfast
+      copy: dest=/etc/timezone content=Europe/Belfast
     - when: timezone.changed
-      apk:
-        name: tzdata
-        state: present
+      apk: name=tzdata state=present
     - when: timezone.changed
-      copy:
-        src: /usr/share/zoneinfo/Europe/Belfast
-        dest: /etc/localtime
-    - apk:
-        name: tzdata
-        state: absent
+      copy: src=/usr/share/zoneinfo/Europe/Belfast dest=/etc/localtime
+    - apk: name=tzdata state=absent
