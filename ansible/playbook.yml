@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 - name: Create groups to run different plays on different distributions
   hosts: all
