@@ -21,7 +21,7 @@
         line: "{{ item }}"
       with_items:
         - "set -o vi"
-        - 'alias ac="{{ playbook_dir | dirname }}/enter.sh"'
+        - 'alias ac="sh {{ playbook_dir | dirname }}/enter.sh"'
         - "for i in /usr/local/etc/profile.d/*.sh ; do \
            if [ -r $i ] ; then . $i; fi ; done"
 
