@@ -2,7 +2,7 @@
 - name: Download ansible-vim # Difficult to use as an optional package
   git:
     repo: https://github.com/pearofducks/ansible-vim
-    dest: /usr/share/vim/vimfiles/pack/vim-ansible/start/ansible-vim
+    dest: /usr/share/vim/vimfiles/pack/ansible/start/ansible-vim
     version: bf352d2fb7784a975733fff417fe0d7140166c0d
 - name: Directory for simple indent settings
   file: path=/usr/share/vim/vimfiles/after/indent/ state=directory mode=0755
@@ -21,11 +21,11 @@
 - name: Download syntastic
   git:
     repo: https://github.com/vim-syntastic/syntastic
-    dest: /usr/share/vim/vimfiles/pack/vim-ansible/opt/syntastic
+    dest: /usr/share/vim/vimfiles/pack/ansible/opt/syntastic
     version: 8ab7705b21cbe5f1c70750dee89bf8b711890a82
 - name: Generate help tags
   command: vim -c ":helptags . | quit"
-  args: { chdir: /usr/share/vim/vimfiles/pack/vim-ansible/opt/syntastic/doc }
+  args: { chdir: /usr/share/vim/vimfiles/pack/ansible/opt/syntastic/doc }
 - name: vim ftplugin directory for settings
   file: path=/usr/share/vim/vimfiles/ftplugin/ state=directory mode=0755
 - name: Custom vim settings in ftplugin

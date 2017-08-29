@@ -35,14 +35,14 @@
   roles:
     - markdown
 
-- name: Vim settings for working on ansible
+- name: Tools for working on ansible
   hosts: Alpine
-  tags: vim-ansible
+  tags: ansible
   become: true
   become_user: root
   gather_facts: false
   roles:
-    - vim-ansible
+    - ansible
 
 - name: Install binaries on Chrome OS
   hosts: Chrome-OS
