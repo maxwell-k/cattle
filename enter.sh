@@ -36,7 +36,7 @@ ac_get_suid_stateful_partition() {
 }
 
 ac_setup_profile() {
-	sudo -- sed -i '/^set nomodeline$/d' chroot/etc/vim/vimrc &&
+	sudo -- rm chroot/etc/vim/vimrc &&
 	sudo -- sh -c "printf 'chronos:x:1000:\n' >> chroot/etc/group" &&
 	test -d chroot/etc/sudoers.d ||
 	sudo -- mkdir chroot/etc/sudoers.d &&
