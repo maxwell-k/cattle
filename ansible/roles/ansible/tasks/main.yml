@@ -21,15 +21,21 @@
 - name: Download syntastic
   git:
     repo: https://github.com/vim-syntastic/syntastic
-    dest: /usr/share/vim/vimfiles/pack/ansible/opt/syntastic
-    version: 8ab7705b21cbe5f1c70750dee89bf8b711890a82
+    # check_on_open won't work if loaded in an autocommand
+    dest: /usr/share/vim/vimfiles/pack/ansible/start/syntastic
+    version: 3.8.0
 - name: Generate help tags
   command: vim -c ":helptags . | quit"
-  args: { chdir: /usr/share/vim/vimfiles/pack/ansible/opt/syntastic/doc }
+  args:
+    chdir: /usr/share/vim/vimfiles/pack/ansible/start/syntastic/doc
+    creates: /usr/share/vim/vimfiles/pack/ansible/start/syntastic/doc/tags
 - name: vim ftplugin directory for settings
   file: path=/usr/share/vim/vimfiles/ftplugin/ state=directory mode=0755
 - name: Custom vim settings in ftplugin
   copy:
     dest: /usr/share/vim/vimfiles/ftplugin/ansible.vim
     content: |
-      packadd syntastic
+      let g:syntastic_always_populate_loc_list = 1
+      let g:syntastic_auto_loc_list = 1
+      let g:syntastic_check_on_open = 1
+      let g:syntastic_check_on_wq = 0
