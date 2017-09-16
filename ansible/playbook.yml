@@ -7,26 +7,6 @@
   - name: Group by distribution
     group_by: key={{ ansible_distribution }}
 
-- name: Setup command line shell on Chrome OS
-  hosts: Chrome-OS
-  become: true
-  become_user: root
-  gather_facts: false
-  tasks:
-    - name: Folder for shell profile settings
-      file: path=/usr/local/etc/profile.d/ state=directory mode=0755
-    - name: Copy OSC52 functions into profile
-      copy: src=../chroot/etc/profile.d/osc52.sh dest=/usr/local/etc/profile.d/
-    - name: Write settings to ~/.bashrc
-      lineinfile:
-        path: /home/chronos/user/.bashrc
-        line: "{{ item }}"
-      with_items:
-        - "set -o vi"
-        - 'alias ac="sh {{ playbook_dir | dirname }}/enter.sh"'
-        - "for i in /usr/local/etc/profile.d/*.sh ; do \
-           if [ -r $i ] ; then . $i; fi ; done"
-
 - name: Install vim-markdownfmt under Alpine
   hosts: Alpine
   become: true
@@ -80,25 +60,35 @@
       dest: /usr/local/bin/git-jump
       mode: 0755
 
-- name: Install osc52.vim on Alpine
-  hosts: Alpine
+- name: Download and install hterm files
+  hosts: all
   become: true
   become_user: root
-  gather_facts: no
+  vars:
+    repo: https://raw.githubusercontent.com/libapps/libapps-mirror/master/
   tasks:
     - name: Create a directory for osc52.vim
+      when: ansible_distribution == 'Alpine'
       file: path=/usr/share/vim/vimfiles/plugin/ state=directory mode=0755
     - name: Download osc52.vim
+      when: ansible_distribution == 'Alpine'
       get_url:
         dest: /usr/share/vim/vimfiles/plugin/
-        url: "https://raw.githubusercontent.com/chromium/hterm/master/\
-              etc/osc52.vim"
-        dest: /usr/share/vim/vimfiles/plugin/
+        url: "{{ repo }}hterm/etc/osc52.vim"
+    - name: Download osc52.sh
+      get_url:
+        dest: /usr/local/bin/
+        url: "{{ repo }}hterm/etc/{{ item }}"
+        mode: 0755
+      with_items:
+        - osc52.sh
+        - hterm-notify.sh
 
 - name: Install opfunc.vim under Alpine
   hosts: Alpine
   tasks:
-    - file:
+    - name: autoload directory
+      file:
         path: /usr/share/vim/vimfiles/autoload/
         state: directory
         mode: 0755
@@ -109,15 +99,37 @@
         src: "/media/removable/DATA/configuration/\
               runtimepath/autoload/opfunc.vim"
         dest: /usr/share/vim/vimfiles/autoload/
-    - when: not ansible_check_mode and opfunc_copy.size is defined
+    - name: plugin directory
+      when: not ansible_check_mode and opfunc_copy.size is defined
       file:
         path: /usr/share/vim/vimfiles/plugin/
         state: directory
         mode: 0755
-    - when: not ansible_check_mode and opfunc_copy.size is defined
+    - name: opfunc line in plugin
+      when: not ansible_check_mode and opfunc_copy.size is defined
       copy:
         dest: /usr/share/vim/vimfiles/plugin/opfunc.vim
         content: call opfunc#All()
+
+- name: Setup command line shell on Chrome OS
+  hosts: Chrome-OS
+  become: true
+  become_user: root
+  gather_facts: false
+  tasks:
+    - name: Folder for shell profile settings
+      file: path=/usr/local/etc/profile.d/ state=directory mode=0755
+    - name: Copy OSC52 functions into profile
+      copy: src=../chroot/etc/profile.d/osc52.sh dest=/usr/local/etc/profile.d/
+    - name: Write settings to ~/.bashrc
+      lineinfile:
+        path: /home/chronos/user/.bashrc
+        line: "{{ item }}"
+      with_items:
+        - "set -o vi"
+        - 'alias ac="sh {{ playbook_dir | dirname }}/enter.sh"'
+        - "for i in /usr/local/etc/profile.d/*.sh ; do \
+           if [ -r $i ] ; then . $i; fi ; done"
 
 - name: Set timezone on Alpine
   hosts: Alpine
@@ -139,4 +151,3 @@
     - meta: flush_handlers
     - name: Remove time-zone data
       apk: name=tzdata state=absent
-
