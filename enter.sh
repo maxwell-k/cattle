@@ -91,7 +91,9 @@ inside)
 		mount --rbind "/$i" "chroot/$i" || exit 1
 	done &&
 	mount -t proc none chroot/proc &&
-	mount --bind /etc/resolv.conf chroot/etc/resolv.conf &&
+	if test -f /etc/resolv.conf ; then
+		mount --bind /etc/resolv.conf chroot/etc/resolv.conf
+	fi  &&
 	if test ! -d chroot/home/chronos/.Downloads ; then
 		test -d chroot/home || mkdir chroot/home &&
 		test -d chroot/home/chronos || mkdir chroot/home/chronos &&
