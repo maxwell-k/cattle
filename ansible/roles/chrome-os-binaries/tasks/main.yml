@@ -23,3 +23,9 @@
     url: https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
     dest: /usr/local/bin/jq
     mode: 0755
+- name: runc
+  get_url:
+    url: https://github.com/opencontainers/runc/releases/download/v1.0.0-rc4/runc.amd64
+    dest: /usr/local/bin/runc
+    mode: 0755
+    checksum: "sha256:742318df7f36aba6135fe5f3ee378d75ec8bf6974f2238eee527b1f8e46d0112"
