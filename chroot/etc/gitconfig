@@ -11,3 +11,6 @@
 	log = false
 	diff = false
 	grep = false
+[include] path = /etc/git/config
+[core] excludesFile = /etc/git/ignore
+[core] attributesFile = /etc/git/attributes

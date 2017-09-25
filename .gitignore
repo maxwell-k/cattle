@@ -1,5 +1,4 @@
 /alpine-chroot-install
 /busybox.static
 /chroot
-/template/home/chronos/.gitconfig
 /tmp
