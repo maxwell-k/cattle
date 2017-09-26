@@ -90,4 +90,45 @@ Running ``./busybox.static unshare -m`` as a normal user results in::
 ``unprivileged_userns_clone`` is a Debian/Unbuntu feature and ``CAP_SYS_ADMIN``
 appears not to work.
 
+Ansible
+-------
+
+A number of Ansible roles for configuring both the Chrome OS host and the
+Alpine Linux ``chroot`` are in ``./ansible/``.
+
+Networking
+----------
+
+*Before running any sort of server that accepts connections, you must adjust
+the ``iptables`` rules.*
+
+The default ``iptabes`` rules from a Chromebook are::
+
+    $ sudo iptables -S
+    -P INPUT DROP
+    -P FORWARD DROP
+    -P OUTPUT DROP
+    -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+    -A INPUT -i lo -j ACCEPT
+    -A INPUT -p icmp -j ACCEPT
+    -A INPUT -d 224.0.0.251/32 -p udp -m udp --dport 5353 -j ACCEPT
+    -A INPUT -d 239.255.255.250/32 -p udp -m udp --dport 1900 -j ACCEPT
+    -A FORWARD -m mark --mark 0x1 -j ACCEPT
+    -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+    -A OUTPUT -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    -A OUTPUT -o lo -j ACCEPT
+
+Open the port for ``git`` with::
+
+    $ sudo iptables -A INPUT -p tcp --dport 9418 -j ACCEPT
+
+Close it again::
+
+    $ sudo iptables -D INPUT -p tcp --dport 9418 -j ACCEPT
+ 
+List and delete rules by line number::
+
+    $ sudo iptables -L --line-numbers
+    $ sudo iptables -D INPUT <number from above command>
+
 .. vim: ft=rst expandtab shiftwidth=4 tabstop=4
