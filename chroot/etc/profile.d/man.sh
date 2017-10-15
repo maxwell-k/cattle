@@ -4,3 +4,4 @@ man() {
 	PAGER="cat" /usr/bin/man $@ | \
 	MAN_PN=1 vim -M "+runtime ftplugin/man.vim" +MANPAGER -
 }
+test "$0" = /etc/profile.d/man.sh && man "$@"
