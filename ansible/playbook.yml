@@ -11,7 +11,6 @@
 - name: Install vim-markdownfmt under Alpine
   hosts: Alpine
   become: true
-  become_user: root
   gather_facts: false
   roles:
     - markdown
@@ -20,7 +19,6 @@
   hosts: Alpine
   tags: ansible
   become: true
-  become_user: root
   gather_facts: false
   roles:
     - ansible
@@ -29,7 +27,6 @@
   hosts: Chrome-OS
   tags: chrome-os-binaries docker
   become: true
-  become_user: root
   gather_facts: no
   roles:
     -   chrome-os-binaries
@@ -38,7 +35,6 @@
 #  hosts: Chrome-OS
 #  tags: docker
 #  become: true
-#  become_user: root
 #  gather_facts: no
 #  tasks:
 #    # TODO: create directory first
@@ -55,7 +51,6 @@
 - name: Install git-jump if missing and git is installed
   hosts: all
   become: true
-  become_user: root
   gather_facts: no
   tasks:
   - name: Check if git is available
@@ -82,7 +77,6 @@
 - name: Download and install hterm files
   hosts: all
   become: true
-  become_user: root
   vars:
     repo: https://raw.githubusercontent.com/libapps/libapps-mirror/master/
   tasks:
@@ -133,7 +127,6 @@
 - name: Setup command line shell on Chrome OS
   hosts: Chrome-OS
   become: true
-  become_user: root
   gather_facts: false
   tasks:
     - name: Folder for shell profile settings
@@ -154,7 +147,6 @@
   hosts: Alpine
   tags: timezone
   become: true
-  become_user: root
   handlers:
     - name: Install time-zone data
       listen: Timezone changed
