@@ -1,8 +1,8 @@
 #!/bin/sh
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.6.0/alpine-chroot-install#a827a4ba3d0817e7c88bae17fe34e50204983d1e'
-BUSYBOX='https://nl.alpinelinux.org/alpine/v3.6/main/x86_64/'\
-'busybox-static-1.26.2-r7.apk' # No SHA1 available
+MIRROR="https://uk.alpinelinux.org/alpine/"
+BUSYBOX="${MIRROR}v3.6/main/x86_64/busybox-static-1.26.2-r7.apk" #No SHA1 found
 
 ac_get_busybox() {
 	if test ! -f busybox.static ; then
@@ -58,7 +58,7 @@ install)
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
-			-r 'http://dl-3.alpinelinux.org/alpine/edge/testing/' \
+			-r '${MIRROR}edge/testing/' \
 			&&
 	-p vim
 	-p git
