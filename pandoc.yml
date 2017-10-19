@@ -3,27 +3,37 @@
   remote_user: root
   environment: { HOME: /opt/pandoc }
   tasks:
-    - name: Add the edge/community repository for cabal
-      lineinfile:
-        path: /etc/apk/repositories
-        line: '@edge-community http://nl.alpinelinux.org/alpine/edge/community'
+    - name: Add repositories for ghc and cabal
+      lineinfile: path=/etc/apk/repositories line="{{ item }}"
+      with_items:
+        - "@community {{ mirror }}v3.6/community"
+        - "@edge-community {{ mirror }}edge/community"
     - name: Install prerequities
       remote_user: root
       apk:
-        name: ghc cabal@edge-community linux-headers
+        name: ghc@community cabal@edge-community linux-headers
         update_cache: yes
-    - git:
+    - name: Clone the pandoc git repo
+      git:
         repo: https://github.com/jgm/pandoc/
+        version: 8fcf66453cc4f9d1cf9413aa466477e56290d733
         dest: /opt/pandoc
-    - name: Update
+    - name: Download a recent list of packages
       command: cabal update
-    - name: Sandbox init
+      changed_when: true
+    - name: Initiliase a sandbox
       command: cabal sandbox init
       args: { chdir: /opt/pandoc }
+      changed_when: true
     - name: Install
       command: cabal install
-      args: { chdir: /opt/pandoc }
-    - file:
+      args:
+        chdir: /opt/pandoc
+        creates: /opt/pandoc/.cabal-sandbox/bin/pandoc
+    - name: Link the result to $PATH
+      file:
         state: link
         src: /opt/pandoc/.cabal-sandbox/bin/pandoc
         path: /usr/local/bin/pandoc
+
+# vim: ft=ansible
