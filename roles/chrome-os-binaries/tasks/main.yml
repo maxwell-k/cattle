@@ -10,8 +10,7 @@
     mode: 0755
     dest: /usr/local/
     remote_src: yes
-    src: "https://nl.alpinelinux.org/alpine/v3.6/main/x86_64/\
-          busybox-static-1.26.2-r6.apk"
+    src: "{{ mirror }}v3.6/main/x86_64/busybox-static-1.26.2-r6.apk"
     extra_opts: bin/busybox.static
 - name: unshare (link to busybox.static)
   file:
@@ -25,7 +24,9 @@
     mode: 0755
 - name: runc
   get_url:
-    url: https://github.com/opencontainers/runc/releases/download/v1.0.0-rc4/runc.amd64
+    url: "https://github.com/opencontainers/runc/releases/download/v1.0.0-rc4/\
+      runc.amd64"
     dest: /usr/local/bin/runc
     mode: 0755
-    checksum: "sha256:742318df7f36aba6135fe5f3ee378d75ec8bf6974f2238eee527b1f8e46d0112"
+    checksum: "sha256:\
+      742318df7f36aba6135fe5f3ee378d75ec8bf6974f2238eee527b1f8e46d0112"

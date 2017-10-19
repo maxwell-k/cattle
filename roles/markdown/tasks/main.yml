@@ -7,9 +7,9 @@
 - name: Make Alpine 3.6 Community repository available to install go
   lineinfile:
     path: /etc/apk/repositories
-    line: https://nl.alpinelinux.org/alpine/v3.6/community
+    line: "@community {{ mirror }}v3.6/community"
 - name: Install go and other prerequistes for markdownfmt
-  apk: name=libc-dev,go
+  apk: name=libc-dev,go@community
 - name: Install markdownfmt with `go get`
   command: go get -u github.com/shurcooL/markdownfmt
   environment: { GOPATH: /tmp/go, GOBIN: /usr/local/bin }

@@ -12,11 +12,11 @@
     content: set autoindent& cindent& smartindent& indentexpr&
 - name: Make Alpine Linux edge test repository available for ansible-lint
   lineinfile:
-    line: "@edge-testing https://dl-3.alpinelinux.org/alpine/edge/testing"
+    line: "@edge-testing {{ mirror }}edge/testing"
     path: /etc/apk/repositories
 - name: Install ansible-lint
   apk: # py3-ansible-lint depends on ansible which fails under py3
-    name: py2-ansible-lint@edge-testing py2-packaging@edge-testing
+    name: py2-ansible-lint@edge-testing py2-packaging
     update_cache: yes
 - name: Download syntastic
   git:

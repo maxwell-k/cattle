@@ -1,1 +1,4 @@
 localhost ansible_connection=local
+
+[all:vars]
+mirror=https://uk.alpinelinux.org/alpine/
