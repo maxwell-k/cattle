@@ -97,7 +97,7 @@
         - osc52.sh
         - hterm-notify.sh
 
-- name: Install opfunc.vim under Alpine
+- name: Install opfunc.vim under Alpine Linux
   hosts: Alpine
   tasks:
     - name: autoload directory
@@ -132,16 +132,19 @@
     - name: Folder for shell profile settings
       file: path=/usr/local/etc/profile.d/ state=directory mode=0755
     - name: Copy OSC52 functions into profile
-      copy: src=../chroot/etc/profile.d/osc52.sh dest=/usr/local/etc/profile.d/
+      copy:
+        src: "{{ playbook_dir }}/chroot/etc/profile.d/osc52.sh"
+        dest: /usr/local/etc/profile.d/
     - name: Write settings to ~/.bashrc
       lineinfile:
         path: /home/chronos/user/.bashrc
         line: "{{ item }}"
       with_items:
-        - "set -o vi"
-        - 'alias ac="sh {{ playbook_dir | dirname }}/enter.sh"'
+        - set -o vi
+        - 'alias ac="sh {{ playbook_dir }}/enter.sh"'
         - "for i in /usr/local/etc/profile.d/*.sh ; do \
            if [ -r $i ] ; then . $i; fi ; done"
+        - export EDITOR="/usr/bin/vim"
 
 - name: Set timezone on Alpine
   hosts: Alpine
