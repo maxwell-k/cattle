@@ -10,13 +10,13 @@
   copy:
     dest: /usr/share/vim/vimfiles/after/indent/ansible.vim
     content: set autoindent& cindent& smartindent& indentexpr&
-- name: Make Alpine Linux edge test repository available for ansible-lint
+- name: Make Alpine Linux edge testing repository available
   lineinfile:
-    line: "@edge-testing {{ mirror }}edge/testing"
+    line: "@edge-community {{ mirror }}edge/community"
     path: /etc/apk/repositories
 - name: Install ansible-lint
   apk: # py3-ansible-lint depends on ansible which fails under py3
-    name: py2-ansible-lint@edge-testing py2-packaging
+    name: py2-ansible-lint@edge-community py2-packaging
     update_cache: yes
 - name: Download syntastic
   git:
