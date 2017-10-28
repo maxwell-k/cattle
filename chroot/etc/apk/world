@@ -15,6 +15,7 @@ ghostscript
 git
 git-daemon
 git-doc
+git-perl
 graphicsmagick
 imagemagick
 jq
@@ -22,11 +23,13 @@ jq-doc
 make
 man
 man-pages
+moreutils@edge-testing
 nginx
 openjdk8@community
 openssh
 openssh-doc
 openssl
+perl-ipc-run@edge-community
 py-enchant@edge-testing
 py2-ansible-lint@edge-community
 py2-packaging
