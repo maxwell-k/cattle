@@ -1,41 +1,44 @@
 ---
-- name: Download ansible-vim # Difficult to use as an optional package
-  git:
-    repo: https://github.com/pearofducks/ansible-vim
-    dest: /usr/share/vim/vimfiles/pack/ansible/start/ansible-vim
-    version: bf352d2fb7784a975733fff417fe0d7140166c0d
-- name: Directory for simple indent settings
-  file: path=/usr/share/vim/vimfiles/after/indent/ state=directory mode=0755
-- name: Simple indenting
-  copy:
-    dest: /usr/share/vim/vimfiles/after/indent/ansible.vim
-    content: set autoindent& cindent& smartindent& indentexpr&
-- name: Make Alpine Linux edge testing repository available
-  lineinfile:
-    line: "@edge-community {{ mirror }}edge/community"
-    path: /etc/apk/repositories
-- name: Install ansible-lint
-  apk: # py3-ansible-lint depends on ansible which fails under py3
-    name: py2-ansible-lint@edge-community py2-packaging
-    update_cache: yes
-- name: Download syntastic
-  git:
-    repo: https://github.com/vim-syntastic/syntastic
-    # check_on_open won't work if loaded in an autocommand
-    dest: /usr/share/vim/vimfiles/pack/ansible/start/syntastic
-    version: 3.8.0
-- name: Generate help tags
-  command: vim -c ":helptags . | quit"
-  args:
-    chdir: /usr/share/vim/vimfiles/pack/ansible/start/syntastic/doc
-    creates: /usr/share/vim/vimfiles/pack/ansible/start/syntastic/doc/tags
-- name: vim ftplugin directory for settings
-  file: path=/usr/share/vim/vimfiles/ftplugin/ state=directory mode=0755
-- name: Custom vim settings in ftplugin
-  copy:
-    dest: /usr/share/vim/vimfiles/ftplugin/ansible.vim
-    content: |
-      let g:syntastic_always_populate_loc_list = 1
-      let g:syntastic_auto_loc_list = 1
-      let g:syntastic_check_on_open = 1
-      let g:syntastic_check_on_wq = 0
+- name: Setup for work on Ansible
+  tags: ansible
+  block:
+  - name: Download ansible-vim # Difficult to use as an optional package
+    git:
+      repo: https://github.com/pearofducks/ansible-vim
+      dest: /usr/share/vim/vimfiles/pack/ansible/start/ansible-vim
+      version: bf352d2fb7784a975733fff417fe0d7140166c0d
+  - name: Directory for simple indent settings
+    file: path=/usr/share/vim/vimfiles/after/indent/ state=directory mode=0755
+  - name: Simple indenting
+    copy:
+      dest: /usr/share/vim/vimfiles/after/indent/ansible.vim
+      content: set autoindent& cindent& smartindent& indentexpr&
+  - name: Make Alpine Linux edge testing repository available
+    lineinfile:
+      line: "@edge-community {{ mirror }}edge/community"
+      path: /etc/apk/repositories
+  - name: Install ansible-lint
+    apk: # py3-ansible-lint depends on ansible which fails under py3
+      name: py2-ansible-lint@edge-community py2-packaging
+      update_cache: yes
+  - name: Download syntastic
+    git:
+      repo: https://github.com/vim-syntastic/syntastic
+      # check_on_open won't work if loaded in an autocommand
+      dest: /usr/share/vim/vimfiles/pack/ansible/start/syntastic
+      version: 3.8.0
+  - name: Generate help tags
+    command: vim -c ":helptags . | quit"
+    args:
+      chdir: /usr/share/vim/vimfiles/pack/ansible/start/syntastic/doc
+      creates: /usr/share/vim/vimfiles/pack/ansible/start/syntastic/doc/tags
+  - name: vim ftplugin directory for settings
+    file: path=/usr/share/vim/vimfiles/ftplugin/ state=directory mode=0755
+  - name: Custom vim settings in ftplugin
+    copy:
+      dest: /usr/share/vim/vimfiles/ftplugin/ansible.vim
+      content: |
+        let g:syntastic_always_populate_loc_list = 1
+        let g:syntastic_auto_loc_list = 1
+        let g:syntastic_check_on_open = 1
+        let g:syntastic_check_on_wq = 0

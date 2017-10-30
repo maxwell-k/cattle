@@ -8,20 +8,13 @@
   - name: Group by distribution
     group_by: key={{ ansible_distribution }}
 
-- name: Install vim-markdownfmt under Alpine
+- name: Install tools on Alpine
   hosts: Alpine
   become: true
   gather_facts: false
   roles:
-    - markdown
-
-- name: Tools for working on ansible
-  hosts: Alpine
-  tags: ansible
-  become: true
-  gather_facts: false
-  roles:
-    - ansible
+    - ansible  # Tools for working on ansible
+    - markdown # Install vim-markdownfmt
 
 - name: Install binaries on Chrome OS
   hosts: Chrome-OS
