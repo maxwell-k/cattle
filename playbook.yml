@@ -18,29 +18,13 @@
 
 - name: Install binaries on Chrome OS
   hosts: Chrome-OS
-  tags: chrome-os-binaries docker
+  tags: chrome-os-binaries,docker
   become: true
   gather_facts: no
   roles:
     -   chrome-os-binaries
+    -   docker
 
-#- name: Install docker on Chrome OS
-#  hosts: Chrome-OS
-#  tags: docker
-#  become: true
-#  gather_facts: no
-#  tasks:
-#    # TODO: create directory first
-#    - name: Fetch Docker binaries
-#      unarchive:
-#        remote_src: yes
-#        src: "https://download.docker.com/linux/static/stable/x86_64/\
-#              docker-17.09.0-ce.tgz"
-#        # Not an ideal location, as not FHS compliant, but is mounted exec and
-#        # rw on boot
-#        dest: /usr/local/docker
-#    # TODO: symlink in /usr/local/bin
-#
 - name: Install git-jump if missing and git is installed
   hosts: all
   become: true
