@@ -30,3 +30,11 @@
     mode: 0755
     checksum: "sha256:\
       742318df7f36aba6135fe5f3ee378d75ec8bf6974f2238eee527b1f8e46d0112"
+- name: umoci
+  get_url:
+    url: "https://github.com/openSUSE/umoci/releases/download/v0.3.1/\
+      umoci.amd64"
+    dest: /usr/local/bin/umoci
+    mode: 0755
+    checksum: "sha256:\
+      68a4d5864d936bf6e3826dc0147c45f081d1c0b047cbb30f97d13df7d890dc5d"
