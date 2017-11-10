@@ -58,7 +58,7 @@ install)
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
-			-r '${MIRROR}edge/testing/' \
+			-r "${MIRROR}edge/testing/" \
 			&&
 	-p vim
 	-p git
