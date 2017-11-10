@@ -33,9 +33,17 @@ perl-ipc-run@edge-community
 py-enchant@edge-testing
 py2-ansible-lint@edge-community
 py2-packaging
+py3-cffi
+py3-crypto
+py3-cryptography
 py3-docutils
+py3-jinja2
 py3-lxml
+py3-markupsafe
+py3-paramiko
 py3-pygments
+py3-pynacl@edge-main
+py3-yaml
 python
 python2
 python3
