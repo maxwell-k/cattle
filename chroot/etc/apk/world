@@ -31,7 +31,7 @@ openssh-doc
 openssl
 perl-ipc-run@edge-community
 py-enchant@edge-testing
-py2-ansible-lint@edge-community
+py2-ansible-lint@edge-testing
 py2-packaging
 py3-cffi
 py3-crypto
