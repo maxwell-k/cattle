@@ -16,7 +16,6 @@ git
 git-daemon
 git-doc
 git-perl
-graphicsmagick
 imagemagick
 jq
 jq-doc
