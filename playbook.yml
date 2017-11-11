@@ -76,6 +76,8 @@
 
 - name: Install opfunc.vim under Alpine Linux
   hosts: Alpine
+  vars:
+    disk: /media/removable/DATA
   tasks:
     - name: autoload directory
       file:
@@ -86,8 +88,7 @@
       ignore_errors: yes
       register: opfunc_copy
       copy:
-        src: "/media/removable/DATA/configuration/\
-              runtimepath/autoload/opfunc.vim"
+        src: "{{ disk }}/configuration/runtimepath/autoload/opfunc.vim"
         dest: /usr/share/vim/vimfiles/autoload/
     - name: plugin directory
       when: not ansible_check_mode and opfunc_copy.size is defined
