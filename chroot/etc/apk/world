@@ -23,6 +23,7 @@ jq-doc
 make
 man
 man-pages
+mdocml-apropos
 moreutils@edge-testing
 nginx
 openjdk8@community
