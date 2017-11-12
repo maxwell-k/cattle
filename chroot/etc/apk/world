@@ -16,6 +16,7 @@ git
 git-daemon
 git-doc
 git-perl
+httpie@edge-community
 imagemagick
 jq
 jq-doc
