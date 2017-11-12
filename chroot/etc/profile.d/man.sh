@@ -1,4 +1,4 @@
-test -f /usr/local/share/man/mandoc.db || sudo makewhatis
+test -f /usr/share/man/mandoc.db || sudo makewhatis
 man() {
 	if /usr/bin/man $@ > /dev/null ; then
 		# portable and doesn't have version information in file paths
