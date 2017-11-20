@@ -19,6 +19,8 @@ git-doc
 git-perl
 httpie@edge-community
 imagemagick
+inotify-tools
+inotify-tools-doc
 jq
 jq-doc
 make
