@@ -29,6 +29,7 @@ man-pages
 mdocml-apropos
 moreutils@edge-testing
 nginx
+nodejs-npm
 openjdk8@community
 openssh
 openssh-doc
