@@ -4,8 +4,9 @@
 # -   Use OSC 52 escape sequence
 # -   Based upon https://github.com/chromium/hterm/blob/master/etc/osc52.vim
 # -   \e and \033 and \x1b are all equivalent
-# -   \x07 is the string terminator:
+# -   \x07 is the string terminator for xterm contol sequences:
 #     http://invisible-island.net/xterm/xterm.faq.html
+# -   \a and \x07 are equivalent
 
 osc52() {
 	# Copy to the ChromeOS clipboard
@@ -16,10 +17,12 @@ osc52() {
 	#
 	# relies on base64 being available e.g. via busybox
 	if test -t 0 ; then
-		printf "\x1b]52;c;%s\x07" $(printf "$1" | base64)
+		printf '\e]52;c;%s\a' $(printf "$1" | base64)
 	else
-		printf "\x1b]52;c;"; base64 | tr -d "\n" ; printf "\x07"
+		printf '\e]52;c;%s\a' \
+			"$(tee /dev/stderr | base64 | tr -d '\n')"
 	fi
+	printf '\a'
 }
 
 yy() {
