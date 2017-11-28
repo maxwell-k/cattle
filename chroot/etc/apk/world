@@ -17,6 +17,7 @@ git
 git-daemon
 git-doc
 git-perl
+go@community
 httpie@edge-community
 imagemagick
 inotify-tools
