@@ -1,6 +1,6 @@
 alpine-base
 alpine-sdk
-ansible
+ansible@edge-main<2.5
 ansible-doc
 aspell
 aspell-en
