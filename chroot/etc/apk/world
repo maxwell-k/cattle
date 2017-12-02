@@ -9,6 +9,7 @@ curl
 diffutils
 dstat@edge-testing
 dstat-doc@edge-testing
+elixir@edge-community
 enchant
 exiftool
 file
