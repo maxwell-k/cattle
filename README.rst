@@ -64,8 +64,8 @@ busybox.static
 
 -   Alpine linux includes a static version of ``busybox``
 -   The wiki_ points to a list of mirrors_, only a few suppport HTTPS including
-    the ``nl`` mirror
--   As of June 2017, 3.6 is the current release_.
+    the ``nl`` and ``uk`` mirrors
+-   As of December 2017, 3.7 is the current release_.
 -   There is no SHA1 available for busybox static APK
 -   Busybox applets don't support the ``--version`` argument, so check with::
 

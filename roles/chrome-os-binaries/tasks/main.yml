@@ -10,7 +10,7 @@
     mode: 0755
     dest: /usr/local/
     remote_src: yes
-    src: "{{ mirror }}v3.6/main/x86_64/busybox-static-1.26.2-r6.apk"
+    src: "{{ mirror }}v3.7/main/x86_64/busybox-static-1.27.2-r6.apk"
     extra_opts: bin/busybox.static
 - name: unshare (link to busybox.static)
   file:

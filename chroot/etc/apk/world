@@ -1,6 +1,6 @@
 alpine-base
 alpine-sdk
-ansible@edge-main<2.5
+ansible<2.5
 ansible-doc
 aspell
 aspell-en
@@ -9,7 +9,7 @@ curl
 diffutils
 dstat@edge-testing
 dstat-doc@edge-testing
-elixir@edge-community
+elixir@community
 enchant
 exiftool
 file
@@ -30,13 +30,12 @@ man
 man-pages
 mdocml-apropos
 moreutils@edge-testing
+neovim@community
 nginx
 nodejs-npm
-openjdk8@community
 openssh
 openssh-doc
 openssl
-perl-ipc-run@edge-community
 py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-packaging
@@ -60,6 +59,7 @@ sqlite
 strace
 strace-doc
 sudo
+tidyhtml@community
 util-linux
 util-linux-doc
 vim

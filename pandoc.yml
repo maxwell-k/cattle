@@ -6,7 +6,7 @@
     - name: Add repositories for ghc and cabal
       lineinfile: path=/etc/apk/repositories line="{{ item }}"
       with_items:
-        - "@community {{ mirror }}v3.6/community"
+        - "@community {{ mirror }}v3.7/community"
         - "@edge-community {{ mirror }}edge/community"
     - name: Install prerequities
       remote_user: root

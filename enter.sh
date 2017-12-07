@@ -2,7 +2,7 @@
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.6.0/alpine-chroot-install#a827a4ba3d0817e7c88bae17fe34e50204983d1e'
 MIRROR="https://uk.alpinelinux.org/alpine/"
-BUSYBOX="${MIRROR}v3.6/main/x86_64/busybox-static-1.26.2-r7.apk" #No SHA1 found
+BUSYBOX="${MIRROR}v3.7/main/x86_64/busybox-static-1.27.2-r6.apk" #No SHA1 found
 
 ac_get_busybox() {
 	if test ! -f busybox.static ; then

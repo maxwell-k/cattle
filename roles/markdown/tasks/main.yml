@@ -10,10 +10,10 @@
   register: binary
 - name: Install binary if missing
   block:
-    - name: Make Alpine 3.6 Community repository available to install go
+    - name: Make Alpine 3.7 Community repository available to install go
       lineinfile:
         path: /etc/apk/repositories
-        line: "@community {{ mirror }}v3.6/community"
+        line: "@community {{ mirror }}v3.7/community"
     - name: Install libc
       apk: name=libc-dev
       register: libc
