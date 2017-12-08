@@ -1,5 +1,6 @@
 #/bin/sh
 # ChromeOS clipboard functions
+# Should be portable to both BusyBox ash and bash
 #
 # -   Use OSC 52 escape sequence
 # -   Based upon https://github.com/chromium/hterm/blob/master/etc/osc52.vim
@@ -27,7 +28,13 @@ osc52() {
 
 yy() {
 	# Copy the last command to the ChromeOS clipboard
-	history |
-	sed -n '$!h;$g;s,^ \+[0-9]\+ \+,,;$p' |
-	osc52
+	if [ "x$SHELL" = "x/bin/bash" ] ; then
+		history | colrm 1 7 | tail -n 2 | head -n 1 | osc52
+	else
+		# BusyBox ash uses: printf("%4d %s\n", i, st->history[i]);
+		# Use as catch all as per advice from Beginning Portable Shell
+		# Scripting: From Novice to Professional By Peter Seebach page
+		# 158
+		history | colrm 1 5 | tail -n 2 | head -n 1 | osc52
+	fi
 }
