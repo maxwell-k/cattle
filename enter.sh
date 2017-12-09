@@ -100,6 +100,12 @@ inside)
 		mkdir chroot/home/chronos/.Downloads &&
 		chown -R chronos:chronos chroot/home/chronos
 	fi &&
+	if test -d apk; then
+		if ! test -L chroot/etc/apk/cache ; then
+			ln -s /var/cache/apk chroot/etc/apk/cache
+		fi &&
+		mount --bind apk chroot/var/cache/apk
+	fi  &&
 	mount -o bind /home/chronos/user/Downloads \
 		chroot/home/chronos/.Downloads &&
 	chroot chroot su -l chronos
