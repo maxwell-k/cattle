@@ -5,6 +5,8 @@ ansible-doc
 aspell
 aspell-en
 busybox-static
+chromium@community
+chromium-doc@community
 curl
 diffutils
 dstat@edge-testing
@@ -40,6 +42,7 @@ py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-packaging
 py3-cffi
+py3-click
 py3-crypto
 py3-cryptography
 py3-docutils
@@ -50,6 +53,7 @@ py3-paramiko
 py3-pygments
 py3-pynacl@edge-main
 py3-yaml
+py3-zmq@community
 python
 python2
 python3
