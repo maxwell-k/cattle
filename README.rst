@@ -1,5 +1,5 @@
-A simple script to setup a development environment on a Chromebook. Uses a
-chroot and mount namespaces.
+A simple script to setup a development environment on a `Chromebook`. Uses a
+`chroot` and mount namespaces.
 
 Usage
 -----
@@ -40,12 +40,13 @@ Then restore the configuration:
 Background
 ----------
 
-I have used a Chromebook as my main personal computer since buying an Acer C720
-in 2014. Chrome OS provides an up to date browser and a pleasant command line
-interface. I love that Chromebooks have become a ubiquitous Linux laptop
-available on the high-street_; and if I break one it can easily be replaced.
+I have used a `Chromebook` as my main personal computer since buying an Acer
+`C720` in 2014. Chrome OS provides an up to date browser and a pleasant
+command line interface. I love that `Chromebooks` have become a ubiquitous
+Linux laptop available on the high-street_; and if I break one it can easily
+be replaced.
 
-Originally I used a Gentoo linux ``chroot``, which required a lot of time to
+Originally I used a Gentoo Linux ``chroot``, which required a lot of time to
 update. After attending a talk_ that used the cattle vs pets metaphor_, I
 started this project - the aim is an easily set-up environment for my day to
 day computing.
@@ -62,12 +63,12 @@ day computing.
 busybox.static
 --------------
 
--   Alpine linux includes a static version of ``busybox``
--   The wiki_ points to a list of mirrors_, only a few suppport HTTPS including
+-   Alpine Linux includes a static version of ``busybox``
+-   The wiki_ points to a list of mirrors_, only a few support HTTPS including
     the ``nl`` and ``uk`` mirrors
 -   As of December 2017, 3.7 is the current release_.
--   There is no SHA1 available for busybox static APK
--   Busybox applets don't support the ``--version`` argument, so check with::
+-   There is no `SHA1` available for BusyBox static ``.apk``
+-   BusyBox applets don't support the ``--version`` argument, so check with::
 
     ./busybox.static | head -n 1
 
@@ -87,7 +88,7 @@ Running ``./busybox.static unshare -m`` as a normal user results in::
 
     unshare: unshare(0x20000): Operation not permitted
 
-``unprivileged_userns_clone`` is a Debian/Unbuntu feature and ``CAP_SYS_ADMIN``
+``unprivileged_userns_clone`` is a Debian/Ubuntu feature and ``CAP_SYS_ADMIN``
 appears not to work.
 
 Ansible
@@ -102,7 +103,7 @@ Networking
 *Before running any sort of server that accepts connections, you must adjust
 the ``iptables`` rules.*
 
-The default ``iptabes`` rules from a Chromebook are::
+The default ``iptabes`` rules from a `Chromebook` are::
 
     $ sudo iptables -S
     -P INPUT DROP
