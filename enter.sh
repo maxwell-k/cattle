@@ -66,18 +66,9 @@ install)
 			&&
 	-p vim
 	-p git
-	-p openssl
-	-p python3
-	-p git-perl # for git add -p
-	-p git-doc # for git help
-	-p man # for git help
-	-p man-pages # for git help
-	-p mdocml-apropos # for git help
 	-p openssh # for git push
-	-p util-linux # for man
-	-p util-linux-doc # for man
 	-p sudo # required for elevation
-	-p moreutils # for vidir in edge/testing
+	-p ansible # for system configuration
 	EOF
 	ac_setup_profile &&
 	sudo rm -f chroot/enter-chroot chroot/env.sh &&
