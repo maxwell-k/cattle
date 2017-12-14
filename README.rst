@@ -16,9 +16,13 @@ replace ``example`` in the steps below with your choice of directory.
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
-Review the contents of ``enter.sh`` then install::
+Review the contents of ``enter.sh`` then install[#]_::
 
   sh ./enter.sh install
+
+Optionally create a directory to cache downloaded files::
+
+  mkdir apk
 
 Enter the ``chroot``::
 
@@ -128,4 +132,8 @@ List and delete rules by line number::
   $ sudo iptables -L --line-numbers
   $ sudo iptables -D INPUT <number from above command>
 
-.. vim: ft=rst expandtab shiftwidth=2 tabstop=2
+.. [#] This command is run with ``sh`` as on boot ``/mnt/stateful_partition``
+  is mounted ``noexec``, so calling directly with ``./enter.sh`` will not
+  work. The script remounts the partition ``exec``.
+
+.. vim: ft=rst expandtab shiftwidth=2 tabstop=2 softtabstop=2
