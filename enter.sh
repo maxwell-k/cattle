@@ -1,8 +1,12 @@
 #!/bin/sh
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'v0.6.0/alpine-chroot-install#a827a4ba3d0817e7c88bae17fe34e50204983d1e'
+'master/alpine-chroot-install#9049d079b136c204bfdc7f22f272e0957216a53c'
+# Alternatively change the line above to point to a released version, e.g.
+# 'v0.7.0/alpine-chroot-install#090d323d887ef3a2fd4e752428553f22a52b87bb'
 MIRROR="https://uk.alpinelinux.org/alpine/"
-BUSYBOX="${MIRROR}v3.7/main/x86_64/busybox-static-1.27.2-r6.apk" #No SHA1 found
+# The version number used below must be available, so check
+# https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
+BUSYBOX="${MIRROR}v3.7/main/x86_64/busybox-static-1.27.2-r7.apk" #No SHA1 found
 
 ac_get_busybox() {
 	if test ! -f busybox.static ; then
