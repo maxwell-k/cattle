@@ -8,6 +8,8 @@ bash
 busybox-static
 chromium@community
 chromium-doc@community
+ctags
+ctags-doc
 curl
 diffutils
 dstat@edge-testing
