@@ -40,7 +40,6 @@ nginx
 nodejs-npm
 openssh
 openssh-doc
-openssl
 py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-packaging
