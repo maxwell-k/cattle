@@ -43,6 +43,7 @@ openssh-doc
 py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-packaging
+py3-argparse@community
 py3-cffi
 py3-click
 py3-crypto
@@ -52,8 +53,11 @@ py3-jinja2
 py3-lxml
 py3-markupsafe
 py3-paramiko
+py3-py@community
 py3-pygments
 py3-pynacl@edge-main
+py3-tox@edge-testing
+py3-virtualenv@edge-main
 py3-yaml
 py3-zmq@community
 python
