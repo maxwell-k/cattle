@@ -2,10 +2,6 @@
 	pager = false
 [core]
 	pager = vim -RM -
-[man]
-	viewer = MANPAGER
-[man "MANPAGER"]
-	cmd = "/etc/profile.d/man.sh"
 [pager]
 	log = false
 	diff = false
