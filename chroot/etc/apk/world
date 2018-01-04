@@ -63,6 +63,7 @@ py3-jinja2
 py3-jsonschema@community
 py3-lxml
 py3-markupsafe
+py3-numpy@edge-community
 py3-paramiko
 py3-pexpect@community
 py3-ptyprocess@community
