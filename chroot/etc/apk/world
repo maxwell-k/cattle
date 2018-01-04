@@ -2,6 +2,7 @@ alpine-base
 alpine-sdk
 ansible<2.5
 ansible-doc
+apk-tools@edge-main
 aspell
 aspell-en
 bash
