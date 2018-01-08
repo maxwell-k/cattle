@@ -19,6 +19,8 @@ e2fsprogs-extra
 elixir@community
 enchant
 exiftool
+ffmpeg
+ffmpeg-doc
 file
 ghostscript
 git
