@@ -12,6 +12,7 @@ chromium-doc@community
 ctags
 ctags-doc
 curl
+curl-doc
 diffutils
 dstat@edge-testing
 dstat-doc@edge-testing
