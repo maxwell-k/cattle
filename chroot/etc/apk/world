@@ -37,6 +37,7 @@ inotify-tools-doc
 jq
 jq-doc
 make
+make-doc
 man
 man-pages
 mdocml-apropos
@@ -91,6 +92,7 @@ sqlite
 strace
 strace-doc
 sudo
+texinfo
 tidyhtml@community
 util-linux
 util-linux-doc
