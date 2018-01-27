@@ -58,6 +58,7 @@ py2-virtualenv
 py3-argparse@community
 py3-cffi
 py3-click
+py3-coverage@edge-testing
 py3-crypto
 py3-cryptography
 py3-dateutil
