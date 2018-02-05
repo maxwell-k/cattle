@@ -6,7 +6,7 @@ SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 MIRROR="https://uk.alpinelinux.org/alpine/"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
-BUSYBOX="${MIRROR}v3.7/main/x86_64/busybox-static-1.27.2-r7.apk" #No SHA1 found
+BUSYBOX="${MIRROR}v3.7/main/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
 
 ac_get_busybox() {
 	if test ! -f busybox.static ; then
