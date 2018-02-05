@@ -26,11 +26,14 @@ ac_get_alpine_chroot_install() {
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
 		error "downloading alpine-chroot-install failed"
-		echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c ||
-		rm -f alpine-chroot-install
-		error 'error getting busybox, check version'
+		if ! echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c
+		then
+			rm -f alpine-chroot-install
+			error 'error getting alpine-chroot-install'
+		fi
 	fi
-	if test ! -x alpine-chroot-install ; then
+	if test -f alpine-chroot-install && test ! -x alpine-chroot-install
+	then
 		chmod u+x alpine-chroot-install
 	fi
 }
