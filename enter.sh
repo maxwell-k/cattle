@@ -120,6 +120,7 @@ remount)
 	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
+	cd "$(dirname "${0}")" || error 'cannot change directory'
 	test -d chroot || error 'run "sh enter.sh install" first'
 	ac_get_exec_stateful_partition &&
 	ac_get_suid_stateful_partition &&
