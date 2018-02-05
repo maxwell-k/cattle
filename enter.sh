@@ -8,11 +8,17 @@ MIRROR="https://uk.alpinelinux.org/alpine/"
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
 BUSYBOX="${MIRROR}v3.7/main/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
 
+error() {
+	printf 'enter.sh: %s\n' "$1" &&
+	exit 1
+}
+
 ac_get_busybox() {
 	if test ! -f busybox.static ; then
 		curl --silent "$BUSYBOX" |
 		tar --warning=no-unknown-keyword --strip-components=1 \
-			-xz bin/busybox.static
+			-xz bin/busybox.static ||
+		error 'error getting busybox, check version'
 	fi
 }
 
@@ -20,7 +26,8 @@ ac_get_alpine_chroot_install() {
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" &&
 		echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c ||
-		exit 1
+		rm -f alpine-chroot-install
+		error 'error getting busybox, check version'
 	fi
 	if test ! -x alpine-chroot-install ; then
 		chmod u+x alpine-chroot-install
@@ -109,11 +116,10 @@ remount)
 	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
+	test -d chroot || error 'run \`enter.sh install\` first'
 	ac_get_exec_stateful_partition &&
 	ac_get_suid_stateful_partition &&
 	cd $(dirname "${0}") &&
-	test -d chroot ||
-	{ printf "Not setup: run \`${0} install\` first \n" ; exit 1 ; } &&
 	if test ! -f chroot/etc/resolv.conf ; then
 		sudo touch chroot/etc/resolv.conf
 	fi &&
