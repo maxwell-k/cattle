@@ -24,7 +24,8 @@ ac_get_busybox() {
 
 ac_get_alpine_chroot_install() {
 	if test ! -f alpine-chroot-install ; then
-		curl --silent -O "${SCRIPT%#*}" &&
+		curl --silent -O "${SCRIPT%#*}" ||
+		error "downloading alpine-chroot-install failed"
 		echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c ||
 		rm -f alpine-chroot-install
 		error 'error getting busybox, check version'
@@ -48,7 +49,7 @@ ac_get_suid_stateful_partition() {
 
 ac_setup_profile() {
 	sudo -- rm chroot/etc/vim/vimrc &&
-	sudo -- sh -c "printf 'chronos:x:1000:\n' >> chroot/etc/group" &&
+	sudo -- sh -c "printf 'chronos:x:1000:\\n' >> chroot/etc/group" &&
 	test -d chroot/etc/sudoers.d ||
 	sudo -- mkdir chroot/etc/sudoers.d &&
 	test -f chroot/etc/sudoers.d/95_chronos ||
@@ -60,7 +61,7 @@ ac_setup_profile() {
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
-	cd $(dirname "${0}") &&
+	cd "$(dirname "${0}")" &&
 	ac_get_alpine_chroot_install &&
 	ac_get_busybox &&
 	ac_get_exec_stateful_partition &&
@@ -116,14 +117,14 @@ remount)
 	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
-	test -d chroot || error 'run \`enter.sh install\` first'
+	test -d chroot || error 'run "sh enter.sh install" first'
 	ac_get_exec_stateful_partition &&
 	ac_get_suid_stateful_partition &&
-	cd $(dirname "${0}") &&
+	cd "$(dirname "${0}")" &&
 	if test ! -f chroot/etc/resolv.conf ; then
 		sudo touch chroot/etc/resolv.conf
 	fi &&
 	sudo ./busybox.static unshare -m --propagation=slave \
-		"$(pwd)/$(basename $0)" inside
+		"$(pwd)/$(basename "$0")" inside
 	;;
 esac
