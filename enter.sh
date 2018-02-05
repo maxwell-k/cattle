@@ -16,7 +16,7 @@ ac_get_busybox() {
 	fi
 }
 
-ac_get_aci() {
+ac_get_alpine_chroot_install() {
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" &&
 		echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c ||
@@ -54,7 +54,7 @@ test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
 	cd $(dirname "${0}") &&
-	ac_get_aci &&
+	ac_get_alpine_chroot_install &&
 	ac_get_busybox &&
 	ac_get_exec_stateful_partition &&
 	sed -e 's/#.*$//' <<-EOF | xargs sudo ./busybox.static \
