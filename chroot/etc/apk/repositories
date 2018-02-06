@@ -3,3 +3,4 @@ https://uk.alpinelinux.org/alpine/v3.7/main
 @edge-community https://uk.alpinelinux.org/alpine/edge/community
 @edge-main https://uk.alpinelinux.org/alpine/edge/main
 @edge-testing https://uk.alpinelinux.org/alpine/edge/testing
+@local /media/removable/TALK/aports/packages/local

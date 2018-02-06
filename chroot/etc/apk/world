@@ -13,6 +13,8 @@ ctags
 ctags-doc
 curl
 curl-doc
+dash@local
+dash-doc@local
 diffutils
 dstat@edge-testing
 dstat-doc@edge-testing
