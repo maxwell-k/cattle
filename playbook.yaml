@@ -1,5 +1,5 @@
 #!/usr/bin/env ansible-playbook
-# Alpine: ./playbook.yml      Chrome OS: sudo ./playbook.yml
+# Alpine: ./playbook.yaml      Chrome OS: sudo ./playbook.yaml
 ---
 - name: Create groups to run different plays on different distributions
   hosts: all
