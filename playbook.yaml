@@ -37,29 +37,6 @@
         dest: /usr/local/bin/jq
         mode: 0755
 
-- name: Download and install hterm files
-  hosts: all
-  become: true
-  vars:
-    repo: https://raw.githubusercontent.com/libapps/libapps-mirror/master/
-  tasks:
-    - name: Create a directory for osc52.vim
-      when: ansible_distribution == 'Alpine'
-      file: path=/usr/share/vim/vimfiles/plugin/ state=directory mode=0755
-    - name: Download osc52.vim
-      when: ansible_distribution == 'Alpine'
-      get_url:
-        dest: /usr/share/vim/vimfiles/plugin/
-        url: "{{ repo }}hterm/etc/osc52.vim"
-    - name: Download osc52.sh
-      get_url:
-        dest: /usr/local/bin/
-        url: "{{ repo }}hterm/etc/{{ item }}"
-        mode: 0755
-      with_items:
-        - osc52.sh
-        - hterm-notify.sh
-
 - name: Setup command line shell on Chrome OS
   hosts: Chrome-OS
   become: true
