@@ -41,17 +41,6 @@ ac_get_alpine_chroot_install() {
 	fi
 }
 
-get_exec_stateful_partition() {
-	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
-		sudo mount -o remount,exec /mnt/stateful_partition
-	fi
-}
-
-get_suid_stateful_partition() {
-	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
-		sudo mount -o remount,suid /mnt/stateful_partition
-	fi
-}
 
 ac_setup_profile() {
 	sudo -- rm chroot/etc/vim/vimrc &&
@@ -64,31 +53,34 @@ ac_setup_profile() {
 	true
 }
 
+enter_start() {
+	cd "$(dirname "${0}")" || error 'cannot change directory'
+	test -d tmp || mkdir tmp || error 'cannot create tmp'
+	test -x busybox.static || get_busybox || error 'cannot get busybox'
+	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
+		sudo mount -o remount,exec /mnt/stateful_partition ||
+		error 'cannot mount exec'
+	fi
+}
+
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
-	cd "$(dirname "${0}")" &&
-	get_busybox &&
+	enter_start # exits if problematic
 	ac_get_alpine_chroot_install &&
-	ac_get_exec_stateful_partition &&
-	sed -e 's/#.*$//' <<-EOF | xargs sudo ./busybox.static \
-		unshare -m --propagation=slave \
+	# openssh for git push, ansible for configuration
+	sudo ./busybox.static unshare -m --propagation=slave \
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
-			-r "${MIRROR}edge/testing/" \
+			-p "vim git openssh sudo ansible" \
+			-r "${MIRROR}/edge/testing/" \
 			&&
-	-p vim
-	-p git
-	-p openssh # for git push
-	-p sudo # required for elevation
-	-p ansible # for system configuration
-	EOF
 	ac_setup_profile &&
 	sudo rm -f chroot/enter-chroot chroot/env.sh &&
 	true
 	;;
-inside)
+inside) # the mount namespace
 	for i in \
 		media/removable \
 		mnt/stateful_partition \
@@ -101,6 +93,9 @@ inside)
 	done &&
 	mount -t proc none chroot/proc &&
 	if test -f /etc/resolv.conf ; then
+		if test ! -f chroot/etc/resolv.conf ; then
+			sudo touch chroot/etc/resolv.conf
+		fi &&
 		mount --bind /etc/resolv.conf chroot/etc/resolv.conf
 	fi  &&
 	if test ! -d chroot/home/chronos/.Downloads ; then
@@ -117,7 +112,7 @@ inside)
 	fi
 	mount -o bind /home/chronos/user/Downloads \
 		chroot/home/chronos/.Downloads || error "can't bind Downloads"
-	if grep -q chronos chroot/etc/passwd; then
+	if grep -q chronos chroot/etc/passwd ; then
 		chroot chroot/ su -l chronos
 	else
 		chroot chroot/ /bin/sh
@@ -127,15 +122,12 @@ remount)
 	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
-	cd "$(dirname "${0}")" || error 'cannot change directory'
-	test -x busybox.static || get_busybox
+	enter_start # exits if problematic
 	test -d chroot || error 'run "sh enter.sh install" first'
-	get_exec_stateful_partition &&
-	get_suid_stateful_partition &&
-	cd "$(dirname "${0}")" &&
-	if test ! -f chroot/etc/resolv.conf ; then
-		sudo touch chroot/etc/resolv.conf
-	fi &&
+	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
+		sudo mount -o remount,suid /mnt/stateful_partition ||
+		error 'cannot remount suid'
+	fi
 	sudo ./busybox.static unshare -m --propagation=slave \
 		"$(pwd)/$(basename "$0")" inside
 	;;
