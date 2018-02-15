@@ -23,12 +23,32 @@
 
 - name: Install binaries on Chrome OS
   hosts: Chrome-OS
-  tags: chrome-os-binaries,docker
   become: true
   gather_facts: no
-  roles:
-    -   chrome-os-binaries
-    -   docker
+  tasks:
+    - name: ar
+      get_url:
+        url: https://busybox.net/downloads/binaries/1.27.1-i686/busybox_AR
+        dest: /usr/local/bin/ar
+        mode: 0755
+    - name: busybox.static
+      unarchive:
+        creates: /usr/local/bin/busybox.static
+        mode: 0755
+        dest: /usr/local/
+        remote_src: yes
+        src: "{{ mirror }}v3.7/main/x86_64/busybox-static-1.27.2-r6.apk"
+        extra_opts: bin/busybox.static
+    - name: unshare (link to busybox.static)
+      file:
+        path: /usr/local/bin/unshare
+        src: /usr/local/bin/busybox.static
+        state: link
+    - name: jq
+      get_url:
+        url: https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+        dest: /usr/local/bin/jq
+        mode: 0755
 
 - name: Download and install hterm files
   hosts: all
