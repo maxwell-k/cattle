@@ -9,6 +9,7 @@ bash
 busybox-static
 chromium@community
 chromium-doc@community
+cloc@community
 ctags
 ctags-doc
 curl
