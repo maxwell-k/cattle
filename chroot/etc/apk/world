@@ -39,6 +39,7 @@ inotify-tools
 inotify-tools-doc
 jq
 jq-doc
+lua-aports
 make
 make-doc
 man
@@ -94,6 +95,7 @@ sane-backend-plustek@edge-testing
 sane-utils@edge-testing
 sed
 sed-doc
+shadow@community
 sqlite
 strace
 strace-doc
