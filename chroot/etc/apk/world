@@ -51,6 +51,7 @@ nodejs-npm
 openssh
 openssh-doc
 perl-ipc-run@community
+poppler-utils
 py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-asn1-modules
