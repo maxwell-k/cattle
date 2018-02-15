@@ -33,32 +33,6 @@
     -   chrome-os-binaries
     -   docker
 
-- name: Install git-jump if missing and git is installed
-  hosts: all
-  become: true
-  gather_facts: no
-  tasks:
-  - name: Check if git is available
-    command: which git
-    register: which_git
-    changed_when: False
-    ignore_errors: yes
-  - name:  Check if git-jump is available
-    command: which git-jump
-    register: which_git_jump
-    changed_when: False
-    ignore_errors: yes
-  - name: Install git_jump
-    when: >
-      not ansible_check_mode
-      and which_git.rc == 0
-      and which_git_jump.rc != 0
-    get_url:
-      url: "https://raw.githubusercontent.com/git/git/master/\
-            contrib/git-jump/git-jump"
-      dest: /usr/local/bin/git-jump
-      mode: 0755
-
 - name: Download and install hterm files
   hosts: all
   become: true
