@@ -50,6 +50,7 @@ nginx
 nodejs-npm
 openssh
 openssh-doc
+perl-ipc-run@community
 py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-asn1-modules
