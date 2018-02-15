@@ -1,4 +1,7 @@
 #!/bin/sh
+# Using apk-tools 2.9 in APK_TOOLS_URI and APK_TOOLS_SHA256 leads to a number
+# of errors; wait for the upstream project (
+# https://github.com/alpinelinux/alpine-chroot-install ) to upgrade first
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'master/alpine-chroot-install#9049d079b136c204bfdc7f22f272e0957216a53c'
 # Alternatively change the line above to point to a released version, e.g.
