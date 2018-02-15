@@ -8,19 +8,6 @@
     - name: Group by distribution
       group_by: { key: "{{ ansible_distribution }}" }
 
-- name: Install tools on Alpine
-  hosts: Alpine
-  become: true
-  gather_facts: false
-  tasks:
-    - name: Download working version of man.vim (no `env -u`)
-      get_url:
-        dest: /usr/share/vim/vim80/ftplugin/man.vim
-        url: "https://raw.githubusercontent.com/vim/vim/v8.0.1000/\
-          runtime/ftplugin/man.vim"
-        checksum: "sha256:\
-          7cf6efba7f7b8d0930f4da477c3f92d8fda25c41795018110dd018adfa2d4bde"
-
 - name: Install binaries on Chrome OS
   hosts: Chrome-OS
   become: true
