@@ -16,7 +16,7 @@ error() {
 	exit 1
 }
 
-ac_get_busybox() {
+get_busybox() {
 	if test ! -f busybox.static ; then
 		curl --silent "$BUSYBOX" |
 		tar --warning=no-unknown-keyword --strip-components=1 \
@@ -41,13 +41,13 @@ ac_get_alpine_chroot_install() {
 	fi
 }
 
-ac_get_exec_stateful_partition() {
+get_exec_stateful_partition() {
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
 		sudo mount -o remount,exec /mnt/stateful_partition
 	fi
 }
 
-ac_get_suid_stateful_partition() {
+get_suid_stateful_partition() {
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition
 	fi
@@ -68,8 +68,8 @@ test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
 	cd "$(dirname "${0}")" &&
+	get_busybox &&
 	ac_get_alpine_chroot_install &&
-	ac_get_busybox &&
 	ac_get_exec_stateful_partition &&
 	sed -e 's/#.*$//' <<-EOF | xargs sudo ./busybox.static \
 		unshare -m --propagation=slave \
@@ -109,24 +109,29 @@ inside)
 		mkdir chroot/home/chronos/.Downloads &&
 		chown -R chronos:chronos chroot/home/chronos
 	fi &&
-	if test -d apk; then
+	if grep -q "Alpine Linux" chroot/etc/os-release && test -d apk; then
 		if ! test -L chroot/etc/apk/cache ; then
 			ln -s /var/cache/apk chroot/etc/apk/cache
 		fi &&
 		mount --bind apk chroot/var/cache/apk
-	fi  &&
+	fi
 	mount -o bind /home/chronos/user/Downloads \
-		chroot/home/chronos/.Downloads &&
-	chroot chroot su -l chronos
+		chroot/home/chronos/.Downloads || error "can't bind Downloads"
+	if grep -q chronos chroot/etc/passwd; then
+		chroot chroot/ su -l chronos
+	else
+		chroot chroot/ /bin/sh
+	fi
 	;;
 remount)
 	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
 	cd "$(dirname "${0}")" || error 'cannot change directory'
+	test -x busybox.static || get_busybox
 	test -d chroot || error 'run "sh enter.sh install" first'
-	ac_get_exec_stateful_partition &&
-	ac_get_suid_stateful_partition &&
+	get_exec_stateful_partition &&
+	get_suid_stateful_partition &&
 	cd "$(dirname "${0}")" &&
 	if test ! -f chroot/etc/resolv.conf ; then
 		sudo touch chroot/etc/resolv.conf
