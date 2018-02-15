@@ -12,9 +12,6 @@
   hosts: Alpine
   become: true
   gather_facts: false
-  roles:
-    - ansible  # Tools for working on ansible
-    - markdown # Install vim-markdownfmt
   tasks:
     - name: Download working version of man.vim (no `env -u`)
       get_url:
