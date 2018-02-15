@@ -54,7 +54,7 @@ py-enchant@edge-testing
 py2-ansible-lint@edge-testing
 py2-asn1-modules
 py2-httplib2@edge-main
-py2-packaging
+py2-packaging@community
 py2-rsa
 py2-virtualenv
 py3-argparse@community
