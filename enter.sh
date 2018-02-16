@@ -74,7 +74,8 @@ install)
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
 			-p "vim git openssh sudo ansible" \
-			-r "${MIRROR}/edge/testing/" \
+			-m "$MIRROR" \
+			-r "$MIRROR/edge/testing/" \
 			&&
 	ac_setup_profile &&
 	sudo rm -f chroot/enter-chroot chroot/env.sh &&
