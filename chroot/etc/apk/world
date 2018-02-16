@@ -1,6 +1,6 @@
 alpine-base
 alpine-sdk
-ansible<2.5
+ansible
 ansible-doc
 apk-tools@edge-main
 aspell
