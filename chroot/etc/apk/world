@@ -37,6 +37,7 @@ inotify-tools-doc
 jq
 jq-doc
 libressl
+libssl1.0
 lua-aports
 make
 make-doc
