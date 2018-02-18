@@ -16,19 +16,20 @@ replace ``example`` in the steps below with your choice of directory.
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
+Optionally create a directory to cache downloaded files, either ``mkdir apk``
+or if the directory already exists at the level above ``ln -s ../apk``.
+
 Review the contents of ``enter.sh`` then install[#]_::
 
   sh ./enter.sh install
-
-Optionally create a directory to cache downloaded files::
-
-  mkdir apk
 
 Enter the ``chroot``::
 
   ./enter.sh
 
-Then restore the configuration:
+The optionally run any relevant Ansible configuration.
+
+Then restore the configuration from the git repository:
 
 .. code:: sh
 
@@ -39,7 +40,7 @@ Then restore the configuration:
   git reset FETCH_HEAD &&
   sudo git checkout chroot/etc &&
   git checkout . &&
-  source /etc/profile
+  . /etc/profile
 
 Background
 ----------
