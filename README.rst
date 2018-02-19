@@ -27,20 +27,7 @@ Enter the ``chroot``::
 
   ./enter.sh
 
-The optionally run any relevant Ansible configuration.
-
-Then restore the configuration from the git repository:
-
-.. code:: sh
-
-  cd /mnt/stateful_partition/example &&
-  git init &&
-  git remote add origin https://gitlab.com/keith.maxwell/alpine-cattle.git &&
-  git fetch &&
-  git reset FETCH_HEAD &&
-  sudo git checkout chroot/etc &&
-  git checkout . &&
-  . /etc/profile
+Then optionally run any relevant Ansible configuration.
 
 Background
 ----------
@@ -91,12 +78,6 @@ Running ``./busybox.static unshare -m`` as a normal user results in::
 
 ``unprivileged_userns_clone`` is a Debian/Ubuntu feature and ``CAP_SYS_ADMIN``
 appears not to work.
-
-Ansible
--------
-
-A number of Ansible roles for configuring both the Chrome OS host and the
-Alpine Linux ``chroot`` are in ``./ansible/``.
 
 Networking
 ----------
