@@ -17,16 +17,7 @@ error() {
 	exit 1
 }
 
-get_busybox() {
-	if test ! -f busybox.static ; then
-		curl --silent "$BUSYBOX" |
-		tar --warning=no-unknown-keyword --strip-components=1 \
-			-xz bin/busybox.static ||
-		error 'error getting busybox, check version'
-	fi
-}
-
-ac_get_alpine_chroot_install() {
+alpine_linux_setup() {
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
 		error "downloading alpine-chroot-install failed"
@@ -38,38 +29,9 @@ ac_get_alpine_chroot_install() {
 	fi
 	if test -f alpine-chroot-install && test ! -x alpine-chroot-install
 	then
-		chmod u+x alpine-chroot-install
+		chmod u+x alpine-chroot-install ||
+		error 'error setting permissions on alpine-chroot-install'
 	fi
-}
-
-
-ac_setup_profile() {
-	sudo -- rm chroot/etc/vim/vimrc &&
-	sudo -- sh -c "printf 'chronos:x:1000:\\n' >> chroot/etc/group" &&
-	test -d chroot/etc/sudoers.d ||
-	sudo -- mkdir chroot/etc/sudoers.d &&
-	test -f chroot/etc/sudoers.d/95_chronos ||
-	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
-	sudo -- tee chroot/etc/sudoers.d/95_chronos >> /dev/null &&
-	true
-}
-
-enter_start() {
-	cd "$(dirname "${0}")" || error 'cannot change directory'
-	test -d tmp || mkdir tmp || error 'cannot create tmp'
-	test -x busybox.static || get_busybox || error 'cannot get busybox'
-	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
-		sudo mount -o remount,exec /mnt/stateful_partition ||
-		error 'cannot mount exec'
-	fi
-}
-
-test "$0" = '/bin/bash' || # to load with . for debugging
-case $1 in
-install)
-	enter_start # exits if problematic
-	ac_get_alpine_chroot_install ||
-	error 'Failed to download alpine-chroot-install'
 	# openssh for git push, ansible for configuration
 	sudo ./busybox.static unshare -m --propagation=slave \
 		./alpine-chroot-install \
@@ -83,10 +45,41 @@ install)
 	printf '%s\n' "$MAIN" |
 	sudo tee chroot/etc/apk/repositories >> /dev/null ||
 	error "Failed to reset repository"
-	ac_setup_profile ||
-	error "Failed to setup profile"
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
+	sudo -- rm chroot/etc/vim/vimrc || error 'Failed to remove vimrc'
+	sudo -- sh -c "printf 'chronos:x:1000:\\n' >> chroot/etc/group" ||
+	error 'Failed to add chronos group'
+	if test ! -d chroot/etc/sudoers.d ; then
+		sudo -- mkdir chroot/etc/sudoers.d ||
+		error 'Error creating chroot/etc/sudoers.d'
+	fi
+	test -f chroot/etc/sudoers.d/95_chronos ||
+	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
+	sudo -- tee chroot/etc/sudoers.d/95_chronos >> /dev/null ||
+	error 'Error adding chronos to wheel'
+}
+
+enter_start() {
+	cd "$(dirname "${0}")" || error 'cannot change directory'
+	test -d tmp || mkdir tmp || error 'cannot create tmp'
+	if test ! -x busybox.static ; then
+		curl --silent "$BUSYBOX" |
+		tar --warning=no-unknown-keyword --strip-components=1 \
+			-xz bin/busybox.static ||
+		error 'error getting busybox, check version'
+	fi
+	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
+		sudo mount -o remount,exec /mnt/stateful_partition ||
+		error 'cannot mount exec'
+	fi
+}
+
+test "$0" = '/bin/bash' || # to load with . for debugging
+case $1 in
+install)
+	enter_start # exits on error
+	alpine_linux_setup # exits on error
 	;;
 inside) # the mount namespace
 	for i in \
@@ -125,9 +118,6 @@ inside) # the mount namespace
 	else
 		chroot chroot/ /bin/sh
 	fi
-	;;
-remount)
-	ac_get_exec_stateful_partition
 	;;
 *) # default if no argument
 	enter_start # exits if problematic
