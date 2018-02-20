@@ -7,9 +7,10 @@ SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 # Alternatively change the line above to point to a released version, e.g.
 # 'v0.7.0/alpine-chroot-install#090d323d887ef3a2fd4e752428553f22a52b87bb'
 MIRROR="https://uk.alpinelinux.org/alpine"
+MAIN="${MIRROR}/v3.7/main"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
-BUSYBOX="${MIRROR}/v3.7/main/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
+BUSYBOX="${MAIN}/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
 
 error() {
 	printf 'enter.sh: %s\n' "$1" &&
@@ -67,7 +68,8 @@ test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 install)
 	enter_start # exits if problematic
-	ac_get_alpine_chroot_install &&
+	ac_get_alpine_chroot_install ||
+	error 'Failed to download alpine-chroot-install'
 	# openssh for git push, ansible for configuration
 	sudo ./busybox.static unshare -m --propagation=slave \
 		./alpine-chroot-install \
@@ -76,10 +78,15 @@ install)
 			-p "vim git openssh sudo ansible" \
 			-m "$MIRROR" \
 			-r "$MIRROR/edge/testing/" \
-			&&
-	ac_setup_profile &&
-	sudo rm -f chroot/enter-chroot chroot/env.sh &&
-	true
+			||
+	error "Failed to run ./alpine-chroot-install"
+	printf '%s\n' "$MAIN" |
+	sudo tee chroot/etc/apk/repositories >> /dev/null ||
+	error "Failed to reset repository"
+	ac_setup_profile ||
+	error "Failed to setup profile"
+	sudo rm -f chroot/enter-chroot chroot/env.sh ||
+	error "Failed to clean up after alpine-chroot-install repository"
 	;;
 inside) # the mount namespace
 	for i in \
