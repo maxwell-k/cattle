@@ -19,7 +19,7 @@ replace ``example`` in the steps below with your choice of directory.
 Optionally create a directory to cache downloaded files, either ``mkdir apk``
 or if the directory already exists at the level above ``ln -s ../apk``.
 
-Review the contents of ``enter.sh`` then install[#]_::
+Review the contents of ``enter.sh`` then install [#]_::
 
   sh ./enter.sh install
 
