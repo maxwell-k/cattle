@@ -1,8 +1,8 @@
 A simple script to setup a development environment on a `Chromebook`. Uses a
 `chroot` and mount namespaces.
 
-Usage
------
+Alpine Linux
+------------
 
 The script is designed to be installed under ``/mnt/stateful_partition``,
 replace ``example`` in the steps below with your choice of directory.
@@ -21,7 +21,7 @@ or if the directory already exists at the level above ``ln -s ../apk``.
 
 Review the contents of ``enter.sh`` then install [#]_::
 
-  sh ./enter.sh install
+  sh ./enter.sh alpine_linux
 
 Enter the ``chroot``::
 

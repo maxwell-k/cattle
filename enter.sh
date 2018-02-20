@@ -77,7 +77,7 @@ enter_start() {
 
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
-install)
+alpine_linux)
 	enter_start # exits on error
 	alpine_linux_setup # exits on error
 	;;
@@ -121,7 +121,7 @@ inside) # the mount namespace
 	;;
 *) # default if no argument
 	enter_start # exits if problematic
-	test -d chroot || error 'run "sh enter.sh install" first'
+	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition ||
 		error 'cannot remount suid'
