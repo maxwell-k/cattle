@@ -15,17 +15,21 @@ ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,ansible,curl"
 
 customise() {
-	sudo -- rm chroot/etc/vim/vimrc || error 'Failed to remove vimrc'
-	sudo -- sh -c "printf 'chronos:x:1000:\\n' >> chroot/etc/group" ||
-	error 'Failed to add chronos group'
+	if test -f chroot/etc/vim/vimrc ; then
+		sudo -- rm chroot/etc/vim/vimrc ||
+		error 'Failed to remove vimrc'
+	fi
+	grep ":$(id -g):" /etc/group |
+	sudo -- tee -a chroot/etc/group >> /dev/null ||
+	error 'Failed to add group to chroot'
 	if test ! -d chroot/etc/sudoers.d ; then
 		sudo -- mkdir chroot/etc/sudoers.d ||
 		error 'Error creating chroot/etc/sudoers.d'
 	fi
-	test -f chroot/etc/sudoers.d/95_chronos ||
-	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
-	sudo -- tee chroot/etc/sudoers.d/95_chronos >> /dev/null ||
-	error 'Error adding chronos to wheel'
+	test -f chroot/etc/sudoers.d/95_chroot ||
+	printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$(id -nu)" |
+	sudo -- tee chroot/etc/sudoers.d/95_chroot >> /dev/null ||
+	error 'Error adding use to wheel'
 }
 
 debian_setup() {
@@ -143,6 +147,8 @@ debian)
 	customise # exits on error
 	;;
 inside) # the mount namespace
+	user="$2"
+	group="$3"
 	for i in \
 		media/removable \
 		mnt/stateful_partition \
@@ -160,11 +166,12 @@ inside) # the mount namespace
 		fi &&
 		mount --bind /etc/resolv.conf chroot/etc/resolv.conf
 	fi  &&
-	if test ! -d chroot/home/chronos/.Downloads ; then
+	if test ! -d "chroot/home/$user/.Downloads" ; then
 		test -d chroot/home || mkdir chroot/home &&
-		test -d chroot/home/chronos || mkdir chroot/home/chronos &&
-		mkdir chroot/home/chronos/.Downloads &&
-		chown -R chronos:chronos chroot/home/chronos
+		test -d "chroot/home/$user" || mkdir "chroot/home/$user" &&
+		mkdir "chroot/home/$user/.Downloads" &&
+		chown -R "$user:$group" "chroot/home/$user" ||
+		error "Error setting up /home"
 	fi &&
 	if grep -q "Alpine Linux" chroot/etc/os-release && test -d apk; then
 		if ! test -L chroot/etc/apk/cache ; then
@@ -172,10 +179,10 @@ inside) # the mount namespace
 		fi &&
 		mount --bind apk chroot/var/cache/apk
 	fi
-	mount -o bind /home/chronos/user/Downloads \
-		chroot/home/chronos/.Downloads || error "can't bind Downloads"
-	if grep -q chronos chroot/etc/passwd ; then
-		chroot chroot/ su -l chronos
+	mount -o bind "/home/$user/user/Downloads" \
+		"chroot/home/$user/.Downloads" || error "can't bind Downloads"
+	if grep -q "$user" chroot/etc/passwd ; then
+		chroot chroot/ su -l "$user"
 	else
 		chroot chroot/ /bin/sh
 	fi
@@ -188,6 +195,6 @@ inside) # the mount namespace
 		error 'cannot remount suid'
 	fi
 	sudo ./busybox.static unshare -m --propagation=slave \
-		"$(pwd)/$(basename "$0")" inside
+		"$(pwd)/$(basename "$0")" inside "$(id -nu)" "$(id -ng)"
 	;;
 esac

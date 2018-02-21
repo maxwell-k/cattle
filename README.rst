@@ -18,7 +18,7 @@ replace ``example`` in the steps below with your choice of directory.
 
   cd /mnt/stateful_partition &&
   sudo mkdir example &&
-  sudo chown chronos:chronos example &&
+  sudo chown "$(id -nu):$(id -ng)" example &&
   cd example &&
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
