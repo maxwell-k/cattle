@@ -15,6 +15,8 @@ ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,ansible,curl"
 
 customise() {
+	# The user is added either in alpine-chroot-install or the call to
+	# debian_setup
 	if test -f chroot/etc/vim/vimrc ; then
 		sudo -- rm chroot/etc/vim/vimrc ||
 		error 'Failed to remove vimrc'
@@ -67,6 +69,11 @@ debian_setup() {
 	fi
 	cdebootstrap_with_args ||
 	error 'error extracting debian system'
+	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
+		sudo chroot chroot/ \
+			useradd --uid "$(id -u)" --gid users "$(id -nu)" ||
+		error 'error adding user'
+	fi
 }
 
 cdebootstrap_with_args() {
