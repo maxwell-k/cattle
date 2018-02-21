@@ -12,6 +12,70 @@ MAIN="${MIRROR}/v3.7/main"
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
 BUSYBOX="${MAIN}/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
 
+customise() {
+	sudo -- rm chroot/etc/vim/vimrc || error 'Failed to remove vimrc'
+	sudo -- sh -c "printf 'chronos:x:1000:\\n' >> chroot/etc/group" ||
+	error 'Failed to add chronos group'
+	if test ! -d chroot/etc/sudoers.d ; then
+		sudo -- mkdir chroot/etc/sudoers.d ||
+		error 'Error creating chroot/etc/sudoers.d'
+	fi
+	test -f chroot/etc/sudoers.d/95_chronos ||
+	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
+	sudo -- tee chroot/etc/sudoers.d/95_chronos >> /dev/null ||
+	error 'Error adding chronos to wheel'
+}
+
+debian_setup() {
+	if test ! -x ./ar ; then
+		# Download a compiled busybox ar
+		printf 'location\nfail\nsilent\nurl %s%s' \
+		'https://busybox.net/downloads/binaries/1.27.1-i686/' \
+		'busybox_AR' |
+		curl -K - > ./ar ||
+		error 'error downloading ar'
+		chmod u+x ./ar ||
+		error 'error setting permissions on ar'
+	fi
+	if test ! -f ./cdebootstrap.deb ; then
+		printf 'location\nfail\nsilent\nurl %s%s%s' \
+		'http://ftp.uk.debian.org/debian/' \
+		'pool/main/c/cdebootstrap/' \
+		'cdebootstrap-static_0.7.7+b1_amd64.deb' |
+		curl -K - > cdebootstrap.deb ||
+		error 'error downloading cdeboostrap'
+	fi
+	if test ! -x ./cdebootstrap ; then
+		ar -p cdebootstrap.deb data.tar.xz |
+		tar xJ --strip-components 2 ||
+		error 'error extracting cdebootstrap'
+		mv ./bin/cdebootstrap-static cdebootstrap ||
+		error 'error cleaning up'
+		rmdir bin || error 'error cleaning up'
+	fi
+	cdebootstrap_with_args --download-only ||
+	error 'error downloading debian system'
+	if grep -E -q '/mnt/stateful_partition .*nodev' /proc/mounts ; then
+		sudo mount -o remount,dev /mnt/stateful_partition ||
+		error 'cannot mount dev'
+	fi
+	cdebootstrap_with_args ||
+	error 'error extracting debian system'
+}
+
+cdebootstrap_with_args() {
+	sudo ./cdebootstrap stretch chroot \
+		--flavour minimal \
+		--allow-unauthenticated \
+		--include=vim,git,openssh,sudo,ansible \
+		--helperdir=share/cdebootstrap-static/ \
+		--configdir=share/cdebootstrap-static/ \
+		"$@"
+	# it is difficult to pass a function to sudo, and
+	# https://github.com/koalaman/shellcheck/wiki/SC2086 discourages
+	# quoting
+}
+
 error() {
 	printf 'enter.sh: %s\n' "$1" &&
 	exit 1
@@ -47,17 +111,6 @@ alpine_linux_setup() {
 	error "Failed to reset repository"
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
-	sudo -- rm chroot/etc/vim/vimrc || error 'Failed to remove vimrc'
-	sudo -- sh -c "printf 'chronos:x:1000:\\n' >> chroot/etc/group" ||
-	error 'Failed to add chronos group'
-	if test ! -d chroot/etc/sudoers.d ; then
-		sudo -- mkdir chroot/etc/sudoers.d ||
-		error 'Error creating chroot/etc/sudoers.d'
-	fi
-	test -f chroot/etc/sudoers.d/95_chronos ||
-	printf 'chronos ALL=(ALL) NOPASSWD: ALL\n' |
-	sudo -- tee chroot/etc/sudoers.d/95_chronos >> /dev/null ||
-	error 'Error adding chronos to wheel'
 }
 
 enter_start() {
@@ -80,6 +133,12 @@ case $1 in
 alpine_linux)
 	enter_start # exits on error
 	alpine_linux_setup # exits on error
+	customise # exits on error
+	;;
+debian)
+	enter_start # exits on error
+	debian_setup # exits on error
+	customise # exits on error
 	;;
 inside) # the mount namespace
 	for i in \

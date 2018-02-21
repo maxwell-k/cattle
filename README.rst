@@ -1,5 +1,11 @@
-A simple script to setup a development environment on a `Chromebook`. Uses a
-`chroot` and mount namespaces.
+A simple script to setup a basic Alpine Linux or Debian environment on a
+`Chromebook`. Uses a `chroot` and mount namespaces. Includes:
+
+  - ``vim``
+  - ``git``
+  - ``openssh``
+  - ``sudo``
+  - ``ansible``
 
 Alpine Linux
 ------------
@@ -16,12 +22,23 @@ replace ``example`` in the steps below with your choice of directory.
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
-Optionally create a directory to cache downloaded files, either ``mkdir apk``
-or if the directory already exists at the level above ``ln -s ../apk``.
+Optionally and if using Alpine Linux create a directory to cache downloaded
+files, either ``mkdir apk`` or if the directory already exists at the level
+above ``ln -s ../apk``.
 
-Review the contents of ``enter.sh`` then install [#]_::
+Review the contents of ``enter.sh`` then install [#]_ either:
 
-  sh ./enter.sh alpine_linux
+1.  Alpine Linux
+
+    .. code:: sh
+
+        sh ./enter.sh alpine_linux
+
+2.  Debian
+
+    ..code:: sh
+
+        sh ./enter.sh debian
 
 Enter the ``chroot``::
 
