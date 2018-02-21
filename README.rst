@@ -8,8 +8,8 @@ A simple script to setup a basic Alpine Linux or Debian environment on a
   - ``ansible``
   - ``curl``
 
-Alpine Linux
-------------
+Usage
+-----
 
 The script is designed to be installed under ``/mnt/stateful_partition``,
 replace ``example`` in the steps below with your choice of directory.
