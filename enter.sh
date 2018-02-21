@@ -11,8 +11,8 @@ MAIN="${MIRROR}/v3.7/main"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
 BUSYBOX="${MAIN}/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
-ALPINE_PACKAGES="vim git openssh sudo ansible"
-DEBIAN_PACKAGES="vim,git,openssh-client,sudo,ansible"
+ALPINE_PACKAGES="vim git openssh sudo ansible curl"
+DEBIAN_PACKAGES="vim,git,openssh-client,sudo,ansible,curl"
 
 customise() {
 	sudo -- rm chroot/etc/vim/vimrc || error 'Failed to remove vimrc'

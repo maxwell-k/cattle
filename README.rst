@@ -3,9 +3,10 @@ A simple script to setup a basic Alpine Linux or Debian environment on a
 
   - ``vim``
   - ``git``
-  - ``openssh``
+  - ``openssh`` client utilities
   - ``sudo``
   - ``ansible``
+  - ``curl``
 
 Alpine Linux
 ------------
