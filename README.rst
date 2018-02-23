@@ -18,14 +18,15 @@ replace ``example`` in the steps below with your choice of directory.
 
   cd /mnt/stateful_partition &&
   sudo mkdir example &&
-  sudo chown "$(id -nu):$(id -ng)" example &&
   cd example &&
+  sudo chown "$(id -nu):$(id -ng)" . &&
   curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
 Optionally and if using Alpine Linux create a directory to cache downloaded
 files, either ``mkdir apk`` or if the directory already exists at the level
-above ``ln -s ../apk``.
+above ``ln -s ../apk``, or to create a directory at the level above:
+``sudo mkdir ../apk && sudo chown "$(id -nu):$(id -ng)" ../apk && ln -s ../apk``.
 
 Review the contents of ``enter.sh`` then install [#]_ either:
 
