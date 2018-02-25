@@ -163,8 +163,12 @@ inside) # the mount namespace
 		dev \
 		run \
 		; do
-		test -d "chroot/$i" || mkdir "chroot/$i" &&
-		mount --rbind "/$i" "chroot/$i" || exit 1
+		if test -d "/$i" ; then
+			test -d "chroot/$i" || mkdir "chroot/$i" ||
+			error "cannot create $i"
+			mount --rbind "/$i" "chroot/$i" ||
+			error "cannot mount $i"
+		fi
 	done &&
 	mount -t proc none chroot/proc &&
 	if test -f /etc/resolv.conf ; then
@@ -186,8 +190,11 @@ inside) # the mount namespace
 		fi &&
 		mount --bind apk chroot/var/cache/apk
 	fi
-	mount -o bind "/home/$user/user/Downloads" \
-		"chroot/home/$user/.Downloads" || error "can't bind Downloads"
+	if test -d "/home/$user/user/Downloads" ; then
+		mount -o bind "/home/$user/user/Downloads" \
+			"chroot/home/$user/.Downloads" ||
+		error "can't bind Downloads"
+	fi
 	if grep -q "$user" chroot/etc/passwd ; then
 		chroot chroot/ su -l "$user"
 	else
