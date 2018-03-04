@@ -133,7 +133,7 @@ enter_start() {
 		curl --silent "$BUSYBOX" |
 		tar --warning=no-unknown-keyword --strip-components=1 \
 			-xz bin/busybox.static ||
-		error 'error getting busybox, check version'
+		error "error getting busybox, check version ($BUSYBOX)"
 	fi
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
 		sudo mount -o remount,exec /mnt/stateful_partition ||
