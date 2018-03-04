@@ -12,7 +12,9 @@ MAIN="${MIRROR}/v3.7/main"
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
 BUSYBOX="${MAIN}/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
 ALPINE_PACKAGES="vim git openssh sudo ansible curl"
-DEBIAN_PACKAGES="vim,git,openssh-client,sudo,ansible,curl"
+DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
+# On Debian Stretch need to install Ansible 2.4 via pip:
+DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-pip,libffi-dev,python-setuptools"
 
 customise() {
 	# The user is added either in alpine-chroot-install or the call to
@@ -69,6 +71,8 @@ debian_setup() {
 	fi
 	cdebootstrap_with_args ||
 	error 'error extracting debian system'
+	sudo chroot chroot/ python2 -m pip install ansible ||
+	error 'error installing Ansible'
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
 		sudo chroot chroot/ \
 			useradd --uid "$(id -u)" --gid users "$(id -nu)" ||
