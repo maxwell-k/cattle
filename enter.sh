@@ -126,6 +126,9 @@ alpine_linux_setup() {
 		chmod u+x alpine-chroot-install ||
 		error 'error setting permissions on alpine-chroot-install'
 	fi
+	which wget > /dev/null 2>&1 ||
+	sudo ln -s /usr/local/bin/busybox.static /usr/local/bin/wget ||
+	error "Failed to setup wget"
 	sudo ./busybox.static unshare -m --propagation=slave \
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
