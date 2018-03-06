@@ -75,8 +75,17 @@ debian_setup() {
 	sudo chroot chroot/ python2 -m pip install ansible ||
 	error 'error installing Ansible'
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
-		sudo chroot chroot/ \
-			useradd --uid "$(id -u)" --gid users "$(id -nu)" ||
+		sudo chroot chroot/ addgroup \
+			--gid "$(id -g)" \
+			"$(id -ng)" ||
+		error 'error adding group'
+		sudo chroot chroot/ adduser \
+			--uid "$(id -u)" \
+			--gid "$(id -g)" \
+			--shell /bin/bash \
+			--gecos "" \
+			--disabled-password \
+			"$(id -nu)" ||
 		error 'error adding user'
 	fi
 }
