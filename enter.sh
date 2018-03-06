@@ -6,7 +6,7 @@ SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'master/alpine-chroot-install#9049d079b136c204bfdc7f22f272e0957216a53c'
 # Alternatively change the line above to point to a released version, e.g.
 # 'v0.7.0/alpine-chroot-install#090d323d887ef3a2fd4e752428553f22a52b87bb'
-MIRROR="https://uk.alpinelinux.org/alpine"
+MIRROR="http://dl-cdn.alpinelinux.org/alpine"
 MAIN="${MIRROR}/v3.7/main"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
