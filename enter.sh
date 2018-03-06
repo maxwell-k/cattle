@@ -15,6 +15,7 @@ ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
 # On Debian Stretch need to install Ansible 2.4 via pip:
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-pip,libffi-dev,python-setuptools"
+DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-wheel"
 
 customise() {
 	# The user is added either in alpine-chroot-install or the call to
