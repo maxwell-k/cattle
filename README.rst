@@ -5,7 +5,7 @@ A simple script to setup a basic Alpine Linux or Debian environment on a
   - ``git``
   - ``openssh`` client utilities
   - ``sudo``
-  - ``ansible``
+  - ``ansible`` version 2.4
   - ``curl``
 
 Usage
