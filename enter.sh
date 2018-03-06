@@ -126,7 +126,6 @@ alpine_linux_setup() {
 		chmod u+x alpine-chroot-install ||
 		error 'error setting permissions on alpine-chroot-install'
 	fi
-	# openssh for git push, ansible for configuration
 	sudo ./busybox.static unshare -m --propagation=slave \
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
