@@ -75,11 +75,11 @@ debian_setup() {
 	sudo chroot chroot/ python2 -m pip install ansible ||
 	error 'error installing Ansible'
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
-		sudo chroot chroot/ addgroup \
+		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
 			--gid "$(id -g)" \
 			"$(id -ng)" ||
 		error 'error adding group'
-		sudo chroot chroot/ adduser \
+		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ adduser \
 			--uid "$(id -u)" \
 			--gid "$(id -g)" \
 			--shell /bin/bash \
