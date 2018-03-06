@@ -64,13 +64,15 @@ debian_setup() {
 		error 'error cleaning up'
 		rmdir bin || error 'error cleaning up'
 	fi
-	cdebootstrap_with_args --download-only ||
-	error 'error downloading debian system'
 	if grep -E -q '/mnt/stateful_partition .*nodev' /proc/mounts ; then
 		sudo mount -o remount,dev /mnt/stateful_partition ||
 		error 'cannot mount dev'
 	fi
-	cdebootstrap_with_args ||
+	# Downloading separately is slower and has no benefit
+	# - slower because of a second validation pass
+	# - no benefit because packages in chroot/var/cache/bootstrap/ are
+	#   later deleted
+	cdebootstrap_with_args -- ||
 	error 'error extracting debian system'
 	sudo chroot chroot/ python2 -m pip install ansible ||
 	error 'error installing Ansible'
@@ -91,6 +93,7 @@ debian_setup() {
 }
 
 cdebootstrap_with_args() {
+	# To test try: . enter.sh && cdebootstrap_with_args --download-only
 	sudo ./cdebootstrap stretch chroot \
 		--flavour minimal \
 		--allow-unauthenticated \
