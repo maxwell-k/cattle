@@ -20,7 +20,7 @@ replace ``example`` in the steps below with your choice of directory.
   sudo mkdir example &&
   cd example &&
   sudo chown "$(id -nu):$(id -ng)" . &&
-  curl -O https://gitlab.com/keith.maxwell/alpine-cattle/raw/master/enter.sh &&
+  curl -O https://gitlab.com/keith.maxwell/cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
 Optionally and if using Alpine Linux create a directory to cache downloaded
