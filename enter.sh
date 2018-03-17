@@ -146,6 +146,10 @@ alpine_linux_setup() {
 }
 
 enter_start() {
+	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
+		sudo mount -o remount,exec /mnt/stateful_partition ||
+		error 'cannot mount exec'
+	fi
 	cd "$(dirname "${0}")" || error 'cannot change directory'
 	test -d tmp || mkdir tmp || error 'cannot create tmp'
 	if test ! -x busybox.static ; then
@@ -153,10 +157,6 @@ enter_start() {
 		tar --warning=no-unknown-keyword --strip-components=1 \
 			-xz bin/busybox.static ||
 		error "error getting busybox, check version ($BUSYBOX)"
-	fi
-	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
-		sudo mount -o remount,exec /mnt/stateful_partition ||
-		error 'cannot mount exec'
 	fi
 }
 
