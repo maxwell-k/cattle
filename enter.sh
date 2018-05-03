@@ -35,7 +35,7 @@ customise() {
 	test -f chroot/etc/sudoers.d/95_chroot ||
 	printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$(id -nu)" |
 	sudo -- tee chroot/etc/sudoers.d/95_chroot >> /dev/null ||
-	error 'Error adding use to wheel'
+	error 'Error adding user to wheel'
 }
 
 debian_setup() {
