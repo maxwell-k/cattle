@@ -1,11 +1,10 @@
 #!/bin/sh
-# Using apk-tools 2.9 in APK_TOOLS_URI and APK_TOOLS_SHA256 leads to a number
-# of errors; wait for the upstream project (
-# https://github.com/alpinelinux/alpine-chroot-install ) to upgrade first
+# Script to setup Alpine Linux Chroot on Chrome OS
+#
+# Based on alpine-chroot-install which uses wget. Chrome OS has curl but no
+# wget, so install a BusyBox version.
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'master/alpine-chroot-install#9049d079b136c204bfdc7f22f272e0957216a53c'
-# Alternatively change the line above to point to a released version, e.g.
-# 'v0.7.0/alpine-chroot-install#090d323d887ef3a2fd4e752428553f22a52b87bb'
+'v0.8.0/alpine-chroot-install#a3d7e2e3e63dfb8abcabb35829a6c8c18bdab082'
 MIRROR="http://dl-cdn.alpinelinux.org/alpine"
 MAIN="${MIRROR}/v3.7/main"
 # The version number used below must be available, so check
