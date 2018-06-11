@@ -6,10 +6,10 @@
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.8.0/alpine-chroot-install#a3d7e2e3e63dfb8abcabb35829a6c8c18bdab082'
 MIRROR="http://dl-cdn.alpinelinux.org/alpine"
-MAIN="${MIRROR}/v3.7/main"
+MAIN="${MIRROR}/edge/main"
 # The version number used below must be available, so check
-# https://pkgs.alpinelinux.org/package/v3.7/main/x86_64/busybox-static
-BUSYBOX="${MAIN}/x86_64/busybox-static-1.27.2-r8.apk" #No SHA1 found
+# https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
+BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r0.apk" #No SHA1 found
 ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
 # On Debian need to install an up to date Ansible via pip:
@@ -140,7 +140,7 @@ alpine_linux_setup() {
 			-t "$PWD/tmp" \
 			-p "$ALPINE_PACKAGES" \
 			-m "$MIRROR" \
-			-r "$MIRROR/edge/testing/" \
+			-b edge \
 			||
 	error "Failed to run ./alpine-chroot-install"
 	printf '%s\n' "$MAIN" |
