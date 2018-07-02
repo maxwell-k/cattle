@@ -3,7 +3,7 @@
 #
 # Based on alpine-chroot-install uses busybox.static in place of wget
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'v0.8.0/alpine-chroot-install#a3d7e2e3e63dfb8abcabb35829a6c8c18bdab082'
+'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
 MIRROR="http://dl-cdn.alpinelinux.org/alpine"
 MAIN="${MIRROR}/edge/main"
 # The version number used below must be available, so check

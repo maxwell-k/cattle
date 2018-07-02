@@ -11,12 +11,19 @@ A simple script to setup a basic Alpine Linux or Debian environment on a
 Usage
 -----
 
-The script is designed to be installed under ``/mnt/stateful_partition``,
+`chroots` installed by this script rely on symbolic links. Chrome OS restricts
+symbolic link traversal. An exception that applies to
+``/mnt/stateful_parition/dev_image`` is created when developer mode is enabled.
+
+.. _restricts: https://www.chromium.org/chromium-os/chromiumos-design-docs/
+    hardening-against-malicious-stateful-data#TOC-Restricting-symlink-traversal
+
+The script should be installed under ``/mnt/stateful_partition/dev_image``,
 replace ``example`` in the steps below with your choice of directory.
 
 .. code:: sh
 
-  cd /mnt/stateful_partition &&
+  cd /mnt/stateful_partition/dev_image &&
   sudo mkdir example &&
   cd example &&
   sudo chown "$(id -nu):$(id -ng)" . &&
@@ -24,10 +31,17 @@ replace ``example`` in the steps below with your choice of directory.
   chmod u+x enter.sh
 
 Optionally and if using Alpine Linux create a directory to cache downloaded
-files, either ``mkdir apk`` or if the directory already exists at the level
-above ``ln -s ../apk``, or to create a directory at the level above:
-``sudo mkdir ../apk && sudo chown "$(id -nu):$(id -ng)" ../apk && ln -s
-../apk``.
+files, either ``mkdir apk`` or if you prefer a directory to be shared across
+chroots, first create create it, if necessary:
+
+.. code:: sh
+
+    cd /mnt/stateful_partition &&
+    sudo mkdir apk &&
+    sudo chown "$(id -nu):$(id -ng)" apk &&
+    cd -
+
+Then link to it with ``ln -s /mnt/stateful_partition/apk``.
 
 Review the contents of ``enter.sh`` then install [#]_ either:
 
@@ -74,7 +88,6 @@ busybox.static
 - Alpine Linux includes a static version of ``busybox``
 - The wiki_ points to a list of mirrors_, only a few support HTTPS including
   the ``nl`` and ``uk`` mirrors
-- As of December 2017, 3.7 is the current release_.
 - There is no `SHA1` available for BusyBox static ``.apk``
 - BusyBox applets don't support the ``--version`` argument, so check with::
 
@@ -82,7 +95,6 @@ busybox.static
 
 .. _wiki: https://wiki.alpinelinux.org/wiki/Alpine_Linux:Mirrors
 .. _mirrors: http://rsync.alpinelinux.org/alpine/MIRRORS.txt
-.. _release: https://wiki.alpinelinux.org/wiki/Alpine_Linux:Releases
 
 Privileges
 ----------
