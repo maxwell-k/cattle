@@ -1,8 +1,7 @@
 #!/bin/sh
 # Script to setup Alpine Linux Chroot on Chrome OS
 #
-# Based on alpine-chroot-install which uses wget. Chrome OS has curl but no
-# wget, so install a BusyBox version.
+# Based on alpine-chroot-install uses busybox.static in place of wget
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.8.0/alpine-chroot-install#a3d7e2e3e63dfb8abcabb35829a6c8c18bdab082'
 MIRROR="http://dl-cdn.alpinelinux.org/alpine"
@@ -126,15 +125,11 @@ alpine_linux_setup() {
 		chmod u+x alpine-chroot-install ||
 		error 'error setting permissions on alpine-chroot-install'
 	fi
-	test -d /usr/local/bin || sudo mkdir /usr/local/bin ||
-	error "Failed to create /usr/local/bin"
-	test -f /usr/local/bin/busybox.static ||
-	sudo cp busybox.static /usr/local/bin ||
-	error "Failed to install busybox.static"
-	which wget > /dev/null 2>&1 ||
-	sudo ln -s /usr/local/bin/busybox.static /usr/local/bin/wget ||
-	error "Failed to setup wget"
-	sudo busybox.static unshare -m --propagation=slave \
+	bb="\\&\\& $(./busybox.static realpath ./busybox.static) wget --no-check-certificate " ||
+	error 'issue executing busybox.static'
+	sed -i "s,\\&\\& wget ,${bb}," alpine-chroot-install ||
+	error 'failed to amend alpine-chroot-install'
+	sudo ./busybox.static unshare -m --propagation=slave \
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
