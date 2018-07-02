@@ -115,7 +115,7 @@ alpine_linux_setup() {
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
 		error "downloading alpine-chroot-install failed"
-		if ! echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c
+		if ! echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c > /dev/null
 		then
 			rm -f alpine-chroot-install
 			error 'error getting alpine-chroot-install'
