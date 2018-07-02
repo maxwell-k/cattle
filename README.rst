@@ -19,13 +19,13 @@ symbolic link traversal. An exception that applies to
     hardening-against-malicious-stateful-data#TOC-Restricting-symlink-traversal
 
 The script should be installed under ``/mnt/stateful_partition/dev_image``,
-replace ``example`` in the steps below with your choice of directory.
+replace ``cattle`` in the steps below with your choice of directory.
 
 .. code:: sh
 
   cd /mnt/stateful_partition/dev_image &&
-  sudo mkdir example &&
-  cd example &&
+  sudo mkdir cattle &&
+  cd cattle &&
   sudo chown "$(id -nu):$(id -ng)" . &&
   curl -O https://gitlab.com/keith.maxwell/cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
