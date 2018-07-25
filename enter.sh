@@ -8,7 +8,7 @@ MIRROR="http://dl-cdn.alpinelinux.org/alpine"
 MAIN="${MIRROR}/edge/main"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
-BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r0.apk" #No SHA1 found
+BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r1.apk" #No SHA1 found
 ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
 # On Debian need to install an up to date Ansible via pip:
