@@ -8,13 +8,14 @@ MIRROR="http://dl-cdn.alpinelinux.org/alpine"
 MAIN="${MIRROR}/edge/main"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
-BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r1.apk" #No SHA1 found
+BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r2.apk" #No SHA1 found
 ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
 # On Debian need to install an up to date Ansible via pip:
-DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-pip,libffi-dev,python-setuptools"
-DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-wheel"
-DEBIAN_PIP_PACKAGES="ansible==2.5"
+DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-pip"
+DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-wheel"
+DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-setuptools"
+DEBIAN_PIP_PACKAGES="ansible==2.6.3"
 
 customise() {
 	# The user is added either in alpine-chroot-install or the call to
@@ -56,7 +57,7 @@ debian_setup() {
 		error 'error downloading cdeboostrap'
 	fi
 	if test ! -x ./cdebootstrap ; then
-		ar -p cdebootstrap.deb data.tar.xz |
+		./ar -p cdebootstrap.deb data.tar.xz |
 		tar xJ --strip-components 2 ||
 		error 'error extracting cdebootstrap'
 		mv ./bin/cdebootstrap-static cdebootstrap ||
@@ -73,7 +74,7 @@ debian_setup() {
 	#   later deleted
 	cdebootstrap_with_args -- ||
 	error 'error extracting debian system'
-	sudo chroot chroot/ python2 -m pip install "$DEBIAN_PIP_PACKAGES" ||
+	sudo chroot chroot/ python3 -m pip install "$DEBIAN_PIP_PACKAGES" ||
 	error 'error installing Ansible'
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
 		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
