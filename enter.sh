@@ -14,7 +14,7 @@ DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
 # On Debian need to install an up to date Ansible via pip:
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-pip,libffi-dev,python-setuptools"
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python-wheel"
-DEBIAN_PIP_PACKAGES="ansible==2.5"
+DEBIAN_PIP_PACKAGES="ansible==2.6"
 
 customise() {
 	# The user is added either in alpine-chroot-install or the call to
