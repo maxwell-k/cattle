@@ -56,7 +56,7 @@ debian_setup() {
 		error 'error downloading cdeboostrap'
 	fi
 	if test ! -x ./cdebootstrap ; then
-		ar -p cdebootstrap.deb data.tar.xz |
+		./ar -p cdebootstrap.deb data.tar.xz |
 		tar xJ --strip-components 2 ||
 		error 'error extracting cdebootstrap'
 		mv ./bin/cdebootstrap-static cdebootstrap ||
