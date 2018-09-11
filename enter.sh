@@ -31,9 +31,66 @@ cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
 	# https://github.com/koalaman/shellcheck/wiki/SC2086 discourages
 	# quoting
 }
+default() { # launch the chroot
+	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
+	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
+		sudo mount -o remount,suid /mnt/stateful_partition ||
+		error 'cannot remount suid'
+	fi
+	sudo ./busybox.static unshare -m --propagation=slave \
+		"$(pwd)/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
+}
 error() { # display error and exit
 	printf 'enter.sh: %s\n' "$1" &&
 	exit 1
+}
+enter() { # enter the chroot from within the mount namespace
+	user="$1"
+	group="$2"
+	for i in \
+		media/removable \
+		mnt/stateful_partition \
+		sys \
+		dev \
+		run \
+		; do
+		if test -d "/$i" ; then
+			test -d "chroot/$i" || mkdir "chroot/$i" ||
+			error "cannot create $i"
+			mount --rbind "/$i" "chroot/$i" ||
+			error "cannot mount $i"
+		fi
+	done &&
+	mount -t proc none chroot/proc &&
+	if test -f /etc/resolv.conf ; then
+		if test ! -f chroot/etc/resolv.conf ; then
+			sudo touch chroot/etc/resolv.conf
+		fi &&
+		mount --bind /etc/resolv.conf chroot/etc/resolv.conf
+	fi  &&
+	if test ! -d "chroot/home/$user/.Downloads" ; then
+		test -d chroot/home || mkdir chroot/home &&
+		test -d "chroot/home/$user" || mkdir "chroot/home/$user" &&
+		mkdir "chroot/home/$user/.Downloads" &&
+		chown -R "$user:$group" "chroot/home/$user" ||
+		error "Error setting up /home"
+	fi &&
+	if grep -q "Alpine Linux" chroot/etc/os-release && test -d apk; then
+		if ! test -L chroot/etc/apk/cache ; then
+			ln -s /var/cache/apk chroot/etc/apk/cache
+		fi &&
+		mount --bind apk chroot/var/cache/apk
+	fi
+	if test -d "/home/$user/user/Downloads" ; then
+		mount -o bind "/home/$user/user/Downloads" \
+			"chroot/home/$user/.Downloads" ||
+		error "can't bind Downloads"
+	fi
+	if grep -q "$user" chroot/etc/passwd ; then
+		chroot chroot/ su -l "$user"
+	else
+		chroot chroot/ /bin/sh
+	fi
 }
 install_alpine_linux() {  # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
@@ -172,63 +229,12 @@ debian)
 	install_debian
 	post_install
 	;;
-inside) # the mount namespace
-	user="$2"
-	group="$3"
-	for i in \
-		media/removable \
-		mnt/stateful_partition \
-		sys \
-		dev \
-		run \
-		; do
-		if test -d "/$i" ; then
-			test -d "chroot/$i" || mkdir "chroot/$i" ||
-			error "cannot create $i"
-			mount --rbind "/$i" "chroot/$i" ||
-			error "cannot mount $i"
-		fi
-	done &&
-	mount -t proc none chroot/proc &&
-	if test -f /etc/resolv.conf ; then
-		if test ! -f chroot/etc/resolv.conf ; then
-			sudo touch chroot/etc/resolv.conf
-		fi &&
-		mount --bind /etc/resolv.conf chroot/etc/resolv.conf
-	fi  &&
-	if test ! -d "chroot/home/$user/.Downloads" ; then
-		test -d chroot/home || mkdir chroot/home &&
-		test -d "chroot/home/$user" || mkdir "chroot/home/$user" &&
-		mkdir "chroot/home/$user/.Downloads" &&
-		chown -R "$user:$group" "chroot/home/$user" ||
-		error "Error setting up /home"
-	fi &&
-	if grep -q "Alpine Linux" chroot/etc/os-release && test -d apk; then
-		if ! test -L chroot/etc/apk/cache ; then
-			ln -s /var/cache/apk chroot/etc/apk/cache
-		fi &&
-		mount --bind apk chroot/var/cache/apk
-	fi
-	if test -d "/home/$user/user/Downloads" ; then
-		mount -o bind "/home/$user/user/Downloads" \
-			"chroot/home/$user/.Downloads" ||
-		error "can't bind Downloads"
-	fi
-	if grep -q "$user" chroot/etc/passwd ; then
-		chroot chroot/ su -l "$user"
-	else
-		chroot chroot/ /bin/sh
-	fi
+enter) # the chroot from within the mount namespace
+	enter "$2" "$3"
 	;;
 *) # default if no argument
 	prepare
-	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
-	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
-		sudo mount -o remount,suid /mnt/stateful_partition ||
-		error 'cannot remount suid'
-	fi
-	sudo ./busybox.static unshare -m --propagation=slave \
-		"$(pwd)/$(basename "$0")" inside "$(id -nu)" "$(id -ng)"
+	default
 	;;
 esac
 
