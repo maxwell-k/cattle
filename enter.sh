@@ -27,8 +27,7 @@ run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch "$OTHER_PACKA
 		--allow-unauthenticated \
 		--include="${2}" \
 		--helperdir=share/cdebootstrap-static/ \
-		--configdir=share/cdebootstrap-static/ ||
-		error 'error extracting debian system'
+		--configdir=share/cdebootstrap-static/
 }
 default() { # launch the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
@@ -66,7 +65,7 @@ enter() { # enter the chroot from within the mount namespace
 			sudo touch chroot/etc/resolv.conf
 		fi &&
 		mount --bind /etc/resolv.conf chroot/etc/resolv.conf
-	fi  &&
+	fi &&
 	if test ! -d "chroot/home/$user/.Downloads" ; then
 		test -d chroot/home || mkdir chroot/home &&
 		test -d "chroot/home/$user" || mkdir "chroot/home/$user" &&
@@ -91,7 +90,7 @@ enter() { # enter the chroot from within the mount namespace
 		chroot chroot/ /bin/sh
 	fi
 }
-install_alpine_linux() {  # install and configure Alpine Linux
+install_alpine_linux() { # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
 		error "downloading alpine-chroot-install failed"
@@ -128,8 +127,20 @@ install_alpine_linux() {  # install and configure Alpine Linux
 	error "Failed to clean up after alpine-chroot-install repository"
 }
 install_ansible_with_pip() { # configure debian
-	sudo chroot chroot/ python3 -m pip install "$PIP_PACKAGES" ||
+	sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ \
+	python3 -m pip install "$PIP_PACKAGES" ||
 	error 'error installing Ansible'
+}
+install_pip_on_ubuntu() { # On Ubuntu python3-pip and -wheel are in universe
+	printf 'deb http://archive.ubuntu.com/ubuntu xenial universe\n' |
+	sudo -- tee -a chroot/etc/apt/sources.list >> /dev/null ||
+	error 'Failed to add universe to sources'
+	sudo chroot chroot/ apt-get update || error 'Failed to update'
+	sudo chroot chroot/ apt-get install -y \
+		python3-cryptography \
+		python3-pip \
+		python3-wheel ||
+	error 'Failed to install packages'
 }
 post_install() { # add user, group, passwordless sudo and remove vimrc
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
@@ -220,7 +231,20 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	run_cdebootstrap stretch "${OTHER_PACKAGES},python3-pip,python3-wheel"
+	run_cdebootstrap stretch "${OTHER_PACKAGES},python3-pip,python3-wheel" ||
+	error 'cdeboostrap error extracting debian system'
+	install_ansible_with_pip
+	post_install
+	;;
+ubuntu)
+	prepare
+	setup_cdebootstrap
+	if grep -q ID=chromeos /etc/os-release ; then
+		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
+	fi
+	run_cdebootstrap ubuntu/xenial "${OTHER_PACKAGES}" ||
+	error 'cdeboostrap error extracting ubuntu system'
+	install_pip_on_ubuntu
 	install_ansible_with_pip
 	post_install
 	;;
