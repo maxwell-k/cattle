@@ -18,11 +18,11 @@ MAIN="${MIRROR}/edge/main"
 BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r2.apk" #No SHA1 found
 ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
-# On Debian need to install an up to date Ansible via pip:
+# On Debian and Ubuntu need to install an up to date Ansible via pip:
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-pip"
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-wheel"
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-setuptools"
-DEBIAN_PIP_PACKAGES="ansible==2.6.3"
+PIP_PACKAGES="ansible==2.6.3"
 
 cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
 	sudo ./cdebootstrap stretch chroot \
@@ -134,7 +134,7 @@ install_alpine_linux() {  # install and configure Alpine Linux
 	error "Failed to clean up after alpine-chroot-install repository"
 }
 install_debian() { # configure debian
-	sudo chroot chroot/ python3 -m pip install "$DEBIAN_PIP_PACKAGES" ||
+	sudo chroot chroot/ python3 -m pip install "$PIP_PACKAGES" ||
 	error 'error installing Ansible'
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
 		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
