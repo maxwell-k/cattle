@@ -17,24 +17,18 @@ MAIN="${MIRROR}/edge/main"
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r2.apk" #No SHA1 found
 ALPINE_PACKAGES="vim git openssh sudo ansible curl"
-DEBIAN_PACKAGES="vim,git,openssh-client,sudo,curl"
-# On Debian and Ubuntu need to install an up to date Ansible via pip:
-DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-pip"
-DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-wheel"
-DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-setuptools"
+# On Debian and Ubuntu need to install an up to date Ansible via pip
+OTHER_PACKAGES="vim,git,openssh-client,sudo,curl,python3-setuptools"
 PIP_PACKAGES="ansible==2.6.3"
 
-cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
-	sudo ./cdebootstrap stretch chroot \
+cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch "$OTHER_PACKAGES"
+	sudo ./cdebootstrap "${1}" chroot \
 		--flavour minimal \
 		--allow-unauthenticated \
-		--include="$DEBIAN_PACKAGES" \
+		--include="${2}" \
 		--helperdir=share/cdebootstrap-static/ \
-		--configdir=share/cdebootstrap-static/ \
-		"$@" || error 'error extracting debian system'
-	# it is difficult to pass a function to sudo, and
-	# https://github.com/koalaman/shellcheck/wiki/SC2086 discourages
-	# quoting
+		--configdir=share/cdebootstrap-static/ ||
+		error 'error extracting debian system'
 }
 default() { # launch the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
@@ -227,7 +221,7 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	cdebootstrap_debian --
+	cdebootstrap stretch "${OTHER_PACKAGES},python3-pip,python3-wheel"
 	install_debian
 	post_install
 	;;
