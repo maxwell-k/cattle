@@ -21,7 +21,7 @@ ALPINE_PACKAGES="vim git openssh sudo ansible curl"
 OTHER_PACKAGES="vim,git,openssh-client,sudo,curl,python3-setuptools"
 PIP_PACKAGES="ansible==2.6.3"
 
-cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch "$OTHER_PACKAGES"
+run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch "$OTHER_PACKAGES"
 	sudo ./cdebootstrap "${1}" chroot \
 		--flavour minimal \
 		--allow-unauthenticated \
@@ -127,10 +127,13 @@ install_alpine_linux() {  # install and configure Alpine Linux
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
 }
-install_debian() { # configure debian
+install_ansible_with_pip() { # configure debian
 	sudo chroot chroot/ python3 -m pip install "$PIP_PACKAGES" ||
 	error 'error installing Ansible'
+}
+post_install() { # add user, group, passwordless sudo and remove vimrc
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
+		# alpine-chroot-install adds the user
 		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
 			--gid "$(id -g)" \
 			"$(id -ng)" ||
@@ -143,6 +146,21 @@ install_debian() { # configure debian
 			--disabled-password \
 			"$(id -nu)" ||
 		error 'error adding user'
+	fi
+	grep ":$(id -g):" /etc/group |
+	sudo -- tee -a chroot/etc/group >> /dev/null ||
+	error 'Failed to add group to chroot'
+	if test ! -d chroot/etc/sudoers.d ; then
+		sudo -- mkdir chroot/etc/sudoers.d ||
+		error 'Error creating chroot/etc/sudoers.d'
+	fi
+	test -f chroot/etc/sudoers.d/95_chroot ||
+	printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$(id -nu)" |
+	sudo -- tee chroot/etc/sudoers.d/95_chroot >> /dev/null ||
+	error 'Error adding passwordless sudo'
+	if test -f chroot/etc/vim/vimrc ; then
+		sudo -- rm chroot/etc/vim/vimrc ||
+		error 'Failed to remove vimrc'
 	fi
 }
 prepare() { # including mount exec, cd, donwload busybox and make ./tmp
@@ -158,25 +176,6 @@ prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 			-xz bin/busybox.static ||
 		error "error getting busybox, check version ($BUSYBOX)"
 	fi
-}
-post_install() { # configure vim, group and sudo
-	# The user is added either in alpine-chroot-install or the call to
-	# install_debian
-	if test -f chroot/etc/vim/vimrc ; then
-		sudo -- rm chroot/etc/vim/vimrc ||
-		error 'Failed to remove vimrc'
-	fi
-	grep ":$(id -g):" /etc/group |
-	sudo -- tee -a chroot/etc/group >> /dev/null ||
-	error 'Failed to add group to chroot'
-	if test ! -d chroot/etc/sudoers.d ; then
-		sudo -- mkdir chroot/etc/sudoers.d ||
-		error 'Error creating chroot/etc/sudoers.d'
-	fi
-	test -f chroot/etc/sudoers.d/95_chroot ||
-	printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$(id -nu)" |
-	sudo -- tee chroot/etc/sudoers.d/95_chroot >> /dev/null ||
-	error 'Error adding user to wheel'
 }
 setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
@@ -221,8 +220,8 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	cdebootstrap stretch "${OTHER_PACKAGES},python3-pip,python3-wheel"
-	install_debian
+	run_cdebootstrap stretch "${OTHER_PACKAGES},python3-pip,python3-wheel"
+	install_ansible_with_pip
 	post_install
 	;;
 enter) # the chroot from within the mount namespace
