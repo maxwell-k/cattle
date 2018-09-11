@@ -101,7 +101,8 @@ install_alpine_linux() {  # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
 		error "downloading alpine-chroot-install failed"
-		if ! echo "${SCRIPT#*#}  alpine-chroot-install" | sha1sum -c > /dev/null
+		if ! echo "${SCRIPT#*#} alpine-chroot-install" \
+			| sha1sum -c > /dev/null
 		then
 			rm -f alpine-chroot-install
 			error 'error getting alpine-chroot-install'
@@ -112,8 +113,9 @@ install_alpine_linux() {  # install and configure Alpine Linux
 		chmod u+x alpine-chroot-install ||
 		error 'error setting permissions on alpine-chroot-install'
 	fi
-	bb="\\&\\& $(./busybox.static realpath ./busybox.static) wget --no-check-certificate " ||
+	bb="\\&\\& $(./busybox.static realpath ./busybox.static) " ||
 	error 'issue executing busybox.static'
+	bb="${bb} wget --no-check-certificate " || error 'string concatenation'
 	sed -i "s,\\&\\& wget ,${bb}," alpine-chroot-install ||
 	error 'failed to amend alpine-chroot-install'
 	sudo ./busybox.static unshare -m --propagation=slave \
