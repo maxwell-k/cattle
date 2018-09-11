@@ -1,5 +1,7 @@
 #!/bin/sh
-# Script to setup Alpine Linux Chroot on Chrome OS
+# Script to setup Alpine Linux or Debian chroots on Chrome OS
+#
+# All functions should exit on error.
 #
 # Based on alpine-chroot-install uses busybox.static in place of wget
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
@@ -17,9 +19,9 @@ DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-wheel"
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-setuptools"
 DEBIAN_PIP_PACKAGES="ansible==2.6.3"
 
-customise() {
+post_install() { # configure vim, group and sudo
 	# The user is added either in alpine-chroot-install or the call to
-	# debian_setup
+	# install_debian
 	if test -f chroot/etc/vim/vimrc ; then
 		sudo -- rm chroot/etc/vim/vimrc ||
 		error 'Failed to remove vimrc'
@@ -37,7 +39,7 @@ customise() {
 	error 'Error adding user to wheel'
 }
 
-debian_setup() {
+setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
 		# Download a compiled busybox ar
 		printf 'location\nfail\nsilent\nurl %s%s' \
@@ -68,11 +70,14 @@ debian_setup() {
 		sudo mount -o remount,dev /mnt/stateful_partition ||
 		error 'cannot mount dev'
 	fi
+}
+
+install_debian() { # install and configure debian using cdebootstrap
 	# Downloading separately is slower and has no benefit
 	# - slower because of a second validation pass
 	# - no benefit because packages in chroot/var/cache/bootstrap/ are
 	#   later deleted
-	cdebootstrap_with_args -- ||
+	cdebootstrap_debian -- ||
 	error 'error extracting debian system'
 	sudo chroot chroot/ python3 -m pip install "$DEBIAN_PIP_PACKAGES" ||
 	error 'error installing Ansible'
@@ -92,8 +97,7 @@ debian_setup() {
 	fi
 }
 
-cdebootstrap_with_args() {
-	# To test try: . enter.sh && cdebootstrap_with_args --download-only
+cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
 	sudo ./cdebootstrap stretch chroot \
 		--flavour minimal \
 		--allow-unauthenticated \
@@ -106,12 +110,12 @@ cdebootstrap_with_args() {
 	# quoting
 }
 
-error() {
+error() { # display error and exit
 	printf 'enter.sh: %s\n' "$1" &&
 	exit 1
 }
 
-alpine_linux_setup() {
+install_alpine_linux() {  # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
 		error "downloading alpine-chroot-install failed"
@@ -146,7 +150,7 @@ alpine_linux_setup() {
 	error "Failed to clean up after alpine-chroot-install repository"
 }
 
-enter_start() {
+prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
 		sudo mount -o remount,exec /mnt/stateful_partition ||
 		error 'cannot mount exec'
@@ -164,14 +168,15 @@ enter_start() {
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
 alpine_linux)
-	enter_start # exits on error
-	alpine_linux_setup # exits on error
-	customise # exits on error
+	prepare
+	install_alpine_linux
+	post_install
 	;;
 debian)
-	enter_start # exits on error
-	debian_setup # exits on error
-	customise # exits on error
+	prepare
+	setup_cdebootstrap
+	install_debian
+	post_install
 	;;
 inside) # the mount namespace
 	user="$2"
@@ -222,7 +227,7 @@ inside) # the mount namespace
 	fi
 	;;
 *) # default if no argument
-	enter_start # exits if problematic
+	prepare
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition ||
