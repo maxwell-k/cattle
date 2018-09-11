@@ -144,7 +144,6 @@ install_pip_on_ubuntu() { # On Ubuntu python3-pip and -wheel are in universe
 }
 post_install() { # add user, group, passwordless sudo and remove vimrc
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
-		# alpine-chroot-install adds the user
 		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
 			--gid "$(id -g)" \
 			"$(id -ng)" ||
@@ -157,6 +156,12 @@ post_install() { # add user, group, passwordless sudo and remove vimrc
 			--disabled-password \
 			"$(id -nu)" ||
 		error 'error adding user'
+	fi
+	# alpine-chroot-install adds the user but with gid 100 (users)
+	start="$(id -nu):.:$(id -u)"
+	if ! grep -q "^${start}:$(id -g)" chroot/etc/passwd ; then
+		sudo sed -i "s/^${start}:[^:]\\+:/${start}:$(id -g):/" \
+			chroot/etc/passwd
 	fi
 	grep ":$(id -g):" /etc/group |
 	sudo -- tee -a chroot/etc/group >> /dev/null ||
