@@ -19,84 +19,6 @@ DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-wheel"
 DEBIAN_PACKAGES="${DEBIAN_PACKAGES},python3-setuptools"
 DEBIAN_PIP_PACKAGES="ansible==2.6.3"
 
-post_install() { # configure vim, group and sudo
-	# The user is added either in alpine-chroot-install or the call to
-	# install_debian
-	if test -f chroot/etc/vim/vimrc ; then
-		sudo -- rm chroot/etc/vim/vimrc ||
-		error 'Failed to remove vimrc'
-	fi
-	grep ":$(id -g):" /etc/group |
-	sudo -- tee -a chroot/etc/group >> /dev/null ||
-	error 'Failed to add group to chroot'
-	if test ! -d chroot/etc/sudoers.d ; then
-		sudo -- mkdir chroot/etc/sudoers.d ||
-		error 'Error creating chroot/etc/sudoers.d'
-	fi
-	test -f chroot/etc/sudoers.d/95_chroot ||
-	printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$(id -nu)" |
-	sudo -- tee chroot/etc/sudoers.d/95_chroot >> /dev/null ||
-	error 'Error adding user to wheel'
-}
-
-setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
-	if test ! -x ./ar ; then
-		# Download a compiled busybox ar
-		printf 'location\nfail\nsilent\nurl %s%s' \
-		'https://busybox.net/downloads/binaries/1.27.1-i686/' \
-		'busybox_AR' |
-		curl -K - > ./ar ||
-		error 'error downloading ar'
-		chmod u+x ./ar ||
-		error 'error setting permissions on ar'
-	fi
-	if test ! -f ./cdebootstrap.deb ; then
-		printf 'location\nfail\nsilent\nurl %s%s%s' \
-		'http://ftp.uk.debian.org/debian/' \
-		'pool/main/c/cdebootstrap/' \
-		'cdebootstrap-static_0.7.7+b1_amd64.deb' |
-		curl -K - > cdebootstrap.deb ||
-		error 'error downloading cdeboostrap'
-	fi
-	if test ! -x ./cdebootstrap ; then
-		./ar -p cdebootstrap.deb data.tar.xz |
-		tar xJ --strip-components 2 ||
-		error 'error extracting cdebootstrap'
-		mv ./bin/cdebootstrap-static cdebootstrap ||
-		error 'error cleaning up'
-		rmdir bin || error 'error cleaning up'
-	fi
-	if grep -E -q '/mnt/stateful_partition .*nodev' /proc/mounts ; then
-		sudo mount -o remount,dev /mnt/stateful_partition ||
-		error 'cannot mount dev'
-	fi
-}
-
-install_debian() { # install and configure debian using cdebootstrap
-	# Downloading separately is slower and has no benefit
-	# - slower because of a second validation pass
-	# - no benefit because packages in chroot/var/cache/bootstrap/ are
-	#   later deleted
-	cdebootstrap_debian -- ||
-	error 'error extracting debian system'
-	sudo chroot chroot/ python3 -m pip install "$DEBIAN_PIP_PACKAGES" ||
-	error 'error installing Ansible'
-	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
-		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
-			--gid "$(id -g)" \
-			"$(id -ng)" ||
-		error 'error adding group'
-		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ adduser \
-			--uid "$(id -u)" \
-			--gid "$(id -g)" \
-			--shell /bin/bash \
-			--gecos "" \
-			--disabled-password \
-			"$(id -nu)" ||
-		error 'error adding user'
-	fi
-}
-
 cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
 	sudo ./cdebootstrap stretch chroot \
 		--flavour minimal \
@@ -109,12 +31,10 @@ cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
 	# https://github.com/koalaman/shellcheck/wiki/SC2086 discourages
 	# quoting
 }
-
 error() { # display error and exit
 	printf 'enter.sh: %s\n' "$1" &&
 	exit 1
 }
-
 install_alpine_linux() {  # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
 		curl --silent -O "${SCRIPT%#*}" ||
@@ -149,7 +69,30 @@ install_alpine_linux() {  # install and configure Alpine Linux
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
 }
-
+install_debian() { # install and configure debian using cdebootstrap
+	# Downloading separately is slower and has no benefit
+	# - slower because of a second validation pass
+	# - no benefit because packages in chroot/var/cache/bootstrap/ are
+	#   later deleted
+	cdebootstrap_debian -- ||
+	error 'error extracting debian system'
+	sudo chroot chroot/ python3 -m pip install "$DEBIAN_PIP_PACKAGES" ||
+	error 'error installing Ansible'
+	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
+		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
+			--gid "$(id -g)" \
+			"$(id -ng)" ||
+		error 'error adding group'
+		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ adduser \
+			--uid "$(id -u)" \
+			--gid "$(id -g)" \
+			--shell /bin/bash \
+			--gecos "" \
+			--disabled-password \
+			"$(id -nu)" ||
+		error 'error adding user'
+	fi
+}
 prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
 		sudo mount -o remount,exec /mnt/stateful_partition ||
@@ -162,6 +105,57 @@ prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 		tar --warning=no-unknown-keyword --strip-components=1 \
 			-xz bin/busybox.static ||
 		error "error getting busybox, check version ($BUSYBOX)"
+	fi
+}
+post_install() { # configure vim, group and sudo
+	# The user is added either in alpine-chroot-install or the call to
+	# install_debian
+	if test -f chroot/etc/vim/vimrc ; then
+		sudo -- rm chroot/etc/vim/vimrc ||
+		error 'Failed to remove vimrc'
+	fi
+	grep ":$(id -g):" /etc/group |
+	sudo -- tee -a chroot/etc/group >> /dev/null ||
+	error 'Failed to add group to chroot'
+	if test ! -d chroot/etc/sudoers.d ; then
+		sudo -- mkdir chroot/etc/sudoers.d ||
+		error 'Error creating chroot/etc/sudoers.d'
+	fi
+	test -f chroot/etc/sudoers.d/95_chroot ||
+	printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$(id -nu)" |
+	sudo -- tee chroot/etc/sudoers.d/95_chroot >> /dev/null ||
+	error 'Error adding user to wheel'
+}
+setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
+	if test ! -x ./ar ; then
+		# Download a compiled busybox ar
+		printf 'location\nfail\nsilent\nurl %s%s' \
+		'https://busybox.net/downloads/binaries/1.27.1-i686/' \
+		'busybox_AR' |
+		curl -K - > ./ar ||
+		error 'error downloading ar'
+		chmod u+x ./ar ||
+		error 'error setting permissions on ar'
+	fi
+	if test ! -f ./cdebootstrap.deb ; then
+		printf 'location\nfail\nsilent\nurl %s%s%s' \
+		'http://ftp.uk.debian.org/debian/' \
+		'pool/main/c/cdebootstrap/' \
+		'cdebootstrap-static_0.7.7+b1_amd64.deb' |
+		curl -K - > cdebootstrap.deb ||
+		error 'error downloading cdeboostrap'
+	fi
+	if test ! -x ./cdebootstrap ; then
+		./ar -p cdebootstrap.deb data.tar.xz |
+		tar xJ --strip-components 2 ||
+		error 'error extracting cdebootstrap'
+		mv ./bin/cdebootstrap-static cdebootstrap ||
+		error 'error cleaning up'
+		rmdir bin || error 'error cleaning up'
+	fi
+	if grep -E -q '/mnt/stateful_partition .*nodev' /proc/mounts ; then
+		sudo mount -o remount,dev /mnt/stateful_partition ||
+		error 'cannot mount dev'
 	fi
 }
 
@@ -237,6 +231,7 @@ inside) # the mount namespace
 		"$(pwd)/$(basename "$0")" inside "$(id -nu)" "$(id -ng)"
 	;;
 esac
+
 # Copyright 2018 Keith Maxwell
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
