@@ -3,6 +3,11 @@
 #
 # All functions should exit on error.
 #
+# Downloading packages and installing separately is slower and has no benefit:
+# - slower because of a second validation pass
+# - no benefit because packages in chroot/var/cache/bootstrap/ are
+#   later deleted
+#
 # Based on alpine-chroot-install uses busybox.static in place of wget
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
@@ -26,7 +31,7 @@ cdebootstrap_debian() { # for testing: `. enter.sh && cdebootstrap_debian`
 		--include="$DEBIAN_PACKAGES" \
 		--helperdir=share/cdebootstrap-static/ \
 		--configdir=share/cdebootstrap-static/ \
-		"$@"
+		"$@" || error 'error extracting debian system'
 	# it is difficult to pass a function to sudo, and
 	# https://github.com/koalaman/shellcheck/wiki/SC2086 discourages
 	# quoting
@@ -126,13 +131,7 @@ install_alpine_linux() {  # install and configure Alpine Linux
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
 }
-install_debian() { # install and configure debian using cdebootstrap
-	# Downloading separately is slower and has no benefit
-	# - slower because of a second validation pass
-	# - no benefit because packages in chroot/var/cache/bootstrap/ are
-	#   later deleted
-	cdebootstrap_debian -- ||
-	error 'error extracting debian system'
+install_debian() { # configure debian
 	sudo chroot chroot/ python3 -m pip install "$DEBIAN_PIP_PACKAGES" ||
 	error 'error installing Ansible'
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
@@ -226,6 +225,7 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
+	cdebootstrap_debian --
 	install_debian
 	post_install
 	;;
