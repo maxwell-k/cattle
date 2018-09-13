@@ -137,7 +137,6 @@ install_pip_on_ubuntu() { # On Ubuntu python3-pip and -wheel are in universe
 	error 'Failed to add universe to sources'
 	sudo chroot chroot/ apt-get update || error 'Failed to update'
 	sudo chroot chroot/ apt-get install -y \
-		python3-cryptography \
 		python3-pip \
 		python3-wheel ||
 	error 'Failed to install packages'
@@ -261,11 +260,12 @@ ubuntu)
 	if grep -q ID=chromeos /etc/os-release ; then
 		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
 	fi
-	run_cdebootstrap ubuntu/xenial "${OTHER_PACKAGES}" ||
+	run_cdebootstrap ubuntu/xenial "${OTHER_PACKAGES},libssl-dev" ||
 	error 'cdeboostrap error extracting ubuntu system'
 	install_pip_on_ubuntu
 	install_ansible_with_pip
 	post_install
+	test_installation
 	;;
 enter) # the chroot from within the mount namespace
 	enter "$2" "$3"
