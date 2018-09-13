@@ -137,7 +137,6 @@ install_pip_on_ubuntu() { # On Ubuntu python3-pip and -wheel are in universe
 	error 'Failed to add universe to sources'
 	sudo chroot chroot/ apt-get update || error 'Failed to update'
 	sudo chroot chroot/ apt-get install -y \
-		python3-cryptography \
 		python3-pip \
 		python3-wheel ||
 	error 'Failed to install packages'
@@ -225,6 +224,18 @@ setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 		error 'cannot mount dev'
 	fi
 }
+test_installation() {
+	sudo chroot chroot/ /bin/sh <<-EOF ||
+	vim --version | head -n 1
+	git --version
+	ssh -V
+	sudo --version | head -n 1
+	curl --version | head -n 1
+	python3 --version
+	ansible --version | head -n 1
+	EOF
+	error 'Failed test'
+}
 
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
@@ -232,6 +243,7 @@ alpine_linux)
 	prepare
 	install_alpine_linux
 	post_install
+	test_installation
 	;;
 debian)
 	prepare
@@ -240,6 +252,7 @@ debian)
 	error 'cdeboostrap error extracting debian system'
 	install_ansible_with_pip
 	post_install
+	test_installation
 	;;
 ubuntu)
 	prepare
@@ -247,11 +260,12 @@ ubuntu)
 	if grep -q ID=chromeos /etc/os-release ; then
 		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
 	fi
-	run_cdebootstrap ubuntu/xenial "${OTHER_PACKAGES}" ||
+	run_cdebootstrap ubuntu/xenial "${OTHER_PACKAGES},libssl-dev" ||
 	error 'cdeboostrap error extracting ubuntu system'
 	install_pip_on_ubuntu
 	install_ansible_with_pip
 	post_install
+	test_installation
 	;;
 enter) # the chroot from within the mount namespace
 	enter "$2" "$3"
