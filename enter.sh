@@ -253,6 +253,7 @@ debian)
 	error 'cdeboostrap error extracting debian system'
 	install_ansible_with_pip
 	post_install
+	test_installation
 	;;
 ubuntu)
 	prepare
