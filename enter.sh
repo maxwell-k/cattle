@@ -225,6 +225,18 @@ setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 		error 'cannot mount dev'
 	fi
 }
+test_installation() {
+	sudo chroot chroot/ /bin/sh <<-EOF ||
+	vim --version | head -n 1
+	git --version
+	ssh -V
+	sudo --version | head -n 1
+	curl --version | head -n 1
+	python3 --version
+	ansible --version | head -n 1
+	EOF
+	error 'Failed test'
+}
 
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
@@ -232,6 +244,7 @@ alpine_linux)
 	prepare
 	install_alpine_linux
 	post_install
+	test_installation
 	;;
 debian)
 	prepare
