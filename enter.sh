@@ -259,7 +259,7 @@ ubuntu)
 	if grep -q ID=chromeos /etc/os-release ; then
 		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
 	fi
-	run_cdebootstrap ubuntu/xenial "${packages},libssl-dev" ||
+	run_cdebootstrap ubuntu/xenial "${packages},libssl-dev,libffi-dev" ||
 	error 'cdeboostrap error extracting ubuntu system'
 	install_pip_on_ubuntu
 	install_ansible_with_pip
