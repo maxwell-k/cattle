@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script to setup Alpine Linux or Debian chroots on Chrome OS
+# Script to setup Alpine Linux, Debian or Ubuntu chroots on Chrome OS
 #
 # All functions should exit on error.
 #
@@ -8,27 +8,18 @@
 # - no benefit because packages in chroot/var/cache/bootstrap/ are
 #   later deleted
 #
-# Based on alpine-chroot-install uses busybox.static in place of wget
-SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
-MIRROR="http://dl-cdn.alpinelinux.org/alpine"
-MAIN="${MIRROR}/edge/main"
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
-BUSYBOX="${MAIN}/x86_64/busybox-static-1.28.4-r2.apk" #No SHA1 found
-ALPINE_PACKAGES="vim git openssh sudo ansible curl"
-# On Debian and Ubuntu need to install an up to date Ansible via pip
-OTHER_PACKAGES="vim,git,openssh-client,sudo,curl,python3-setuptools"
-PIP_PACKAGES="ansible==2.6.3"
+: "${BRANCH:=edge/main}"
+: "${BUSYBOX_VERSION:=busybox-static-1.28.4-r2.apk}" # No SHA1
+: "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
+: "${PIP_PACKAGES:=ansible==2.6.3}" # Used on Debian and Ubuntu
 
-run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch "$OTHER_PACKAGES"
-	sudo ./cdebootstrap "${1}" chroot \
-		--flavour minimal \
-		--allow-unauthenticated \
-		--include="${2}" \
-		--helperdir=share/cdebootstrap-static/ \
-		--configdir=share/cdebootstrap-static/
-}
+busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
+packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
+script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
+'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
+
 default() { # launch the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
@@ -37,10 +28,6 @@ default() { # launch the chroot
 	fi
 	sudo ./busybox.static unshare -m --propagation=slave \
 		"$(pwd)/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
-}
-error() { # display error and exit
-	printf 'enter.sh: %s\n' "$1" &&
-	exit 1
 }
 enter() { # enter the chroot from within the mount namespace
 	user="$1"
@@ -90,11 +77,15 @@ enter() { # enter the chroot from within the mount namespace
 		chroot chroot/ /bin/sh
 	fi
 }
+error() { # display error and exit
+	printf 'enter.sh: %s\n' "$1" &&
+	exit 1
+}
 install_alpine_linux() { # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
-		curl --silent -O "${SCRIPT%#*}" ||
+		curl --silent -O "${script%#*}" ||
 		error "downloading alpine-chroot-install failed"
-		if ! echo "${SCRIPT#*#} alpine-chroot-install" \
+		if ! echo "${script#*#} alpine-chroot-install" \
 			| sha1sum -c > /dev/null
 		then
 			rm -f alpine-chroot-install
@@ -115,12 +106,12 @@ install_alpine_linux() { # install and configure Alpine Linux
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
-			-p "$ALPINE_PACKAGES" \
+			-p "vim git openssh sudo ansible curl" \
 			-m "$MIRROR" \
 			-b edge \
 			||
 	error "Failed to run ./alpine-chroot-install"
-	printf '%s\n' "$MAIN" |
+	printf '%s\n' "$MIRROR/$BRANCH" |
 	sudo tee chroot/etc/apk/repositories >> /dev/null ||
 	error "Failed to reset repository"
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
@@ -186,11 +177,19 @@ prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 	cd "$(dirname "${0}")" || error 'cannot change directory'
 	test -d tmp || mkdir tmp || error 'cannot create tmp'
 	if test ! -x busybox.static ; then
-		curl --silent "$BUSYBOX" |
+		curl --silent "$busybox" |
 		tar --warning=no-unknown-keyword --strip-components=1 \
 			-xz bin/busybox.static ||
-		error "error getting busybox, check version ($BUSYBOX)"
+		error "error getting busybox, check version ($busybox)"
 	fi
+}
+run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch
+	sudo ./cdebootstrap "${1}" chroot \
+		--flavour minimal \
+		--allow-unauthenticated \
+		--include="${2:-${packages}}" \
+		--helperdir=share/cdebootstrap-static/ \
+		--configdir=share/cdebootstrap-static/
 }
 setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
@@ -248,7 +247,7 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	run_cdebootstrap stretch "${OTHER_PACKAGES},python3-pip,python3-wheel" ||
+	run_cdebootstrap stretch "${packages},python3-pip,python3-wheel" ||
 	error 'cdeboostrap error extracting debian system'
 	install_ansible_with_pip
 	post_install
@@ -260,7 +259,7 @@ ubuntu)
 	if grep -q ID=chromeos /etc/os-release ; then
 		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
 	fi
-	run_cdebootstrap ubuntu/xenial "${OTHER_PACKAGES},libssl-dev" ||
+	run_cdebootstrap ubuntu/xenial "${packages},libssl-dev,libffi-dev" ||
 	error 'cdeboostrap error extracting ubuntu system'
 	install_pip_on_ubuntu
 	install_ansible_with_pip
