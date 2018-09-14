@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script to setup Alpine Linux or Debian chroots on Chrome OS
+# Script to setup Alpine Linux, Debian or Ubuntu chroots on Chrome OS
 #
 # All functions should exit on error.
 #
@@ -8,7 +8,6 @@
 # - no benefit because packages in chroot/var/cache/bootstrap/ are
 #   later deleted
 #
-# Based on alpine-chroot-install uses busybox.static in place of wget
 SCRIPT='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
 MIRROR="http://dl-cdn.alpinelinux.org/alpine"
