@@ -10,10 +10,10 @@
 #
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
-BRANCH="${BRANCH:-edge/main}"
-BUSYBOX_VERSION="${BUSYBOX_VERSION:-busybox-static-1.28.4-r2.apk}" # No SHA1
-MIRROR="${MIRROR:-http://dl-cdn.alpinelinux.org/alpine}"
-PIP_PACKAGES="${PIP_PACKAGES:-ansible==2.6.3}" # Used on Debian and Ubuntu
+: "${BRANCH:=edge/main}"
+: "${BUSYBOX_VERSION:=busybox-static-1.28.4-r2.apk}" # No SHA1
+: "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
+: "${PIP_PACKAGES:=ansible==2.6.3}" # Used on Debian and Ubuntu
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
