@@ -20,14 +20,6 @@ packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
 
-run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch
-	sudo ./cdebootstrap "${1}" chroot \
-		--flavour minimal \
-		--allow-unauthenticated \
-		--include="${2:-${packages}}" \
-		--helperdir=share/cdebootstrap-static/ \
-		--configdir=share/cdebootstrap-static/
-}
 default() { # launch the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
@@ -36,10 +28,6 @@ default() { # launch the chroot
 	fi
 	sudo ./busybox.static unshare -m --propagation=slave \
 		"$(pwd)/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
-}
-error() { # display error and exit
-	printf 'enter.sh: %s\n' "$1" &&
-	exit 1
 }
 enter() { # enter the chroot from within the mount namespace
 	user="$1"
@@ -88,6 +76,10 @@ enter() { # enter the chroot from within the mount namespace
 	else
 		chroot chroot/ /bin/sh
 	fi
+}
+error() { # display error and exit
+	printf 'enter.sh: %s\n' "$1" &&
+	exit 1
 }
 install_alpine_linux() { # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
@@ -190,6 +182,14 @@ prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 			-xz bin/busybox.static ||
 		error "error getting busybox, check version ($busybox)"
 	fi
+}
+run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch
+	sudo ./cdebootstrap "${1}" chroot \
+		--flavour minimal \
+		--allow-unauthenticated \
+		--include="${2:-${packages}}" \
+		--helperdir=share/cdebootstrap-static/ \
+		--configdir=share/cdebootstrap-static/
 }
 setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
