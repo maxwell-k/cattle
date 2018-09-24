@@ -70,6 +70,10 @@ enter() { # enter the chroot from within the mount namespace
 		mount -o bind "/home/$user/user/Downloads" \
 			"chroot/home/$user/.Downloads" ||
 		error "can't bind Downloads"
+	elif test -d "/home/$user/.Downloads" ; then
+		mount -o bind "/home/$user/.Downloads" \
+			"chroot/home/$user/.Downloads" ||
+		error "can't bind Downloads"
 	fi
 	if grep -q "$user" chroot/etc/passwd ; then
 		chroot chroot/ su -l "$user"
