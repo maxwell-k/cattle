@@ -148,9 +148,9 @@ post_install() { # add user, group, passwordless sudo and remove vimrc
 		error 'error adding user'
 	fi
 	# alpine-chroot-install adds the user but with gid 100 (users)
-	start="$(id -nu):.:$(id -u)"
+	start="$(id -nu):[^:]\\+:$(id -u)"
 	if ! grep -q "^${start}:$(id -g)" chroot/etc/passwd ; then
-		sudo sed -i "s/^${start}:[^:]\\+:/${start}:$(id -g):/" \
+		sudo sed -i "s/^\\(${start}\\):[^:]\\+:/\\1:$(id -g):/" \
 			chroot/etc/passwd
 	fi
 	grep ":$(id -g):" /etc/group |
@@ -224,14 +224,17 @@ setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	fi
 }
 test_installation() {
-	sudo chroot chroot/ /bin/sh <<-EOF ||
-	vim --version | head -n 1
-	git --version
-	ssh -V
-	sudo --version | head -n 1
-	curl --version | head -n 1
-	python3 --version
-	ansible --version | head -n 1
+	# use a mount namespace to avoid an intermittent permission denied
+	# error on /dev/null on the git, ssh and ansible commands below
+	sudo ./busybox.static unshare -m --propagation=slave /bin/sh <<-EOF ||
+	sudo mount --bind /dev chroot/dev
+	sudo chroot chroot/ vim --version | head -n 1
+	sudo chroot chroot/ git --version
+	sudo chroot chroot/ ssh -V
+	sudo chroot chroot/ sudo --version | head -n 1
+	sudo chroot chroot/ curl --version | head -n 1
+	sudo chroot chroot/ python3 --version
+	sudo chroot chroot/ ansible --version | head -n 1
 	EOF
 	error 'Failed test'
 }
