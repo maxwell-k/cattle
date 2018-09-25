@@ -148,9 +148,9 @@ post_install() { # add user, group, passwordless sudo and remove vimrc
 		error 'error adding user'
 	fi
 	# alpine-chroot-install adds the user but with gid 100 (users)
-	start="$(id -nu):.:$(id -u)"
+	start="$(id -nu):[^:]\\+:$(id -u)"
 	if ! grep -q "^${start}:$(id -g)" chroot/etc/passwd ; then
-		sudo sed -i "s/^${start}:[^:]\\+:/${start}:$(id -g):/" \
+		sudo sed -i "s/^\\(${start}\\):[^:]\\+:/\\1:$(id -g):/" \
 			chroot/etc/passwd
 	fi
 	grep ":$(id -g):" /etc/group |
