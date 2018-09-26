@@ -150,4 +150,28 @@ List and delete rules by line number::
   is mounted ``noexec``, so calling directly with ``./enter.sh`` will not
   work. The script remounts the partition ``exec``.
 
+Passwords and Ubuntu
+--------------------
+
+If `SELinux` is not in permissive mode a entering an Ubuntu ``chroot`` may
+fail::
+
+  $ sudo setenforce 1
+  $ sudo getenforce
+  Enforcing
+  $ sh enter.sh
+  Password:
+  su: Authentication failure
+
+Whereas in permissive mode this works::
+
+  $ sudo setenforce 0
+  $ sudo getenforce
+  Permissive
+  $ sh enter.sh
+  %< --- success --- %<
+
+A workaround is to replace `chroot chroot/ su -l "$user"` with `chroot chroot/
+sudo -i -u "$user"` in enter.sh.
+
 .. vim: ft=rst expandtab shiftwidth=2 tabstop=2 softtabstop=2
