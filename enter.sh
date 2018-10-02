@@ -121,7 +121,7 @@ install_alpine_linux() { # install and configure Alpine Linux
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
 }
-install_ansible_with_pip() { # configure debian
+install_ansible_with_pip() {
 	sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ \
 	python3 -m pip install "$PIP_PACKAGES" ||
 	error 'error installing Ansible'
