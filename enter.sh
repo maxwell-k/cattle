@@ -11,7 +11,7 @@
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
-: "${BUSYBOX_VERSION:=busybox-static-1.28.4-r2.apk}" # No SHA1
+: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r0.apk}" # No SHA1
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${PIP_PACKAGES:=ansible==2.6.3}" # Used on Debian and Ubuntu
 
