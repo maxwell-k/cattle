@@ -13,13 +13,38 @@
 : "${BRANCH:=edge/main}"
 : "${BUSYBOX_VERSION:=busybox-static-1.29.3-r0.apk}" # No SHA1
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
-: "${PIP_PACKAGES:=ansible==2.6.3}" # Used on Debian and Ubuntu
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
 
+ansible_debian() {
+	# https://docs.ansible.com/ansible/latest/installation_guide/
+	# intro_installation.html#latest-releases-via-apt-debian
+	sudo -- chroot chroot/ apt-key adv --keyserver keyserver.ubuntu.com \
+		--recv-keys 93C4A3FD7BB9C367 ||
+	error "Failed to add key"
+	printf 'deb %s trusty main\n' \
+		'http://ppa.launchpad.net/ansible/ansible/ubuntu' \
+		| sudo -- tee chroot/etc/apt/sources.list.d/ansible.list ||
+	error "Failed to install repo"
+	sudo -- chroot chroot/ apt-get update || error "Failed to update"
+	sudo -- chroot chroot/ apt-get install --yes ansible ||
+	error "Failed to install Ansible"
+}
+ansible_ubuntu() {
+	# https://docs.ansible.com/ansible/latest/installation_guide/
+	# intro_installation.html#latest-releases-via-apt-ubuntu
+	sudo chroot chroot/ apt-add-repository --yes ppa:ansible/ansible ||
+	error "Failed to add ansible repository"
+	sudo chroot chroot/ add-apt-repository --yes universe ||
+	error "Failed to add universe repository"
+	sudo chroot chroot/ apt-get update ||
+	error "Failed to update apt-cache"
+	sudo chroot chroot/ apt-get install --yes ansible ||
+	error "Failed to install Ansible"
+}
 default() { # launch the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
@@ -121,21 +146,6 @@ install_alpine_linux() { # install and configure Alpine Linux
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
 }
-install_ansible_with_pip() {
-	sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ \
-	python3 -m pip install "$PIP_PACKAGES" ||
-	error 'error installing Ansible'
-}
-install_pip_on_ubuntu() { # On Ubuntu python3-pip and -wheel are in universe
-	printf 'deb http://archive.ubuntu.com/ubuntu xenial universe\n' |
-	sudo -- tee -a chroot/etc/apt/sources.list >> /dev/null ||
-	error 'Failed to add universe to sources'
-	sudo chroot chroot/ apt-get update || error 'Failed to update'
-	sudo chroot chroot/ apt-get install -y \
-		python3-pip \
-		python3-wheel ||
-	error 'Failed to install packages'
-}
 post_install() { # add user, group, passwordless sudo and remove vimrc
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
 		sudo LANG=C.UTF-8 LC_ALL=C.UTF-8 chroot chroot/ addgroup \
@@ -187,7 +197,7 @@ prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 		error "error getting busybox, check version ($busybox)"
 	fi
 }
-run_cdebootstrap() { # to test: . enter.sh && cdebootstrap stretch
+run_cdebootstrap() {
 	sudo ./cdebootstrap "${1}" chroot \
 		--flavour minimal \
 		--allow-unauthenticated \
@@ -254,9 +264,9 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	run_cdebootstrap stretch "${packages},python3-pip,python3-wheel" ||
-	error 'cdeboostrap error extracting debian system'
-	install_ansible_with_pip
+	run_cdebootstrap stretch "${packages},gnupg,dirmngr" ||
+	error 'cdebootstrap error extracting debian system'
+	ansible_debian
 	post_install
 	test_installation
 	;;
@@ -266,10 +276,10 @@ ubuntu)
 	if grep -q ID=chromeos /etc/os-release ; then
 		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
 	fi
-	run_cdebootstrap ubuntu/xenial "${packages},libssl-dev,libffi-dev" ||
+	run_cdebootstrap ubuntu/xenial \
+		"${packages},software-properties-common" ||
 	error 'cdeboostrap error extracting ubuntu system'
-	install_pip_on_ubuntu
-	install_ansible_with_pip
+	ansible_ubuntu
 	post_install
 	test_installation
 	;;
