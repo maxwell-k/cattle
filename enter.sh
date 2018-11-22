@@ -93,8 +93,10 @@ enter() { # enter the chroot from within the mount namespace
 	fi
 	if grep -q Ubuntu chroot/etc/os-release ; then
 		set_permissive
-		sudo mount -o remount,ro chroot/sys/fs/selinux ||
-		error "can't change selinux permissions for apt-get"
+		if test -d chroot/sys/fs/selinux ; then
+			sudo mount -o remount,ro chroot/sys/fs/selinux ||
+			error "can't change selinux permissions for apt-get"
+		fi
 	fi
 	if test -d "/home/$user/user/Downloads" ; then
 		mount -o bind "/home/$user/user/Downloads" \
