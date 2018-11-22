@@ -1,5 +1,10 @@
 /alpine-chroot-install
 /apk
+/ar
 /busybox.static
+/cdebootstrap
+/cdebootstrap.deb
 /chroot
+/lib
+/share
 /tmp
