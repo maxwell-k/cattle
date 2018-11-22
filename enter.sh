@@ -91,6 +91,14 @@ enter() { # enter the chroot from within the mount namespace
 		fi &&
 		mount --bind apk chroot/var/cache/apk
 	fi
+	if grep -q Ubuntu chroot/etc/os-release ; then
+		if ! test "x$(sudo getenforce)" = "xPermissive" ; then
+			sudo setenforce permissive ||
+			error "can't change selinux permissions for login"
+		fi
+		sudo mount -o remount,ro chroot/sys/fs/selinux ||
+		error "can't change selinux permissions for apt-get"
+	fi
 	if test -d "/home/$user/user/Downloads" ; then
 		mount -o bind "/home/$user/user/Downloads" \
 			"chroot/home/$user/.Downloads" ||
