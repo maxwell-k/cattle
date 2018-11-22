@@ -91,6 +91,9 @@ enter() { # enter the chroot from within the mount namespace
 		fi &&
 		mount --bind apk chroot/var/cache/apk
 	fi
+	if grep -q Ubuntu chroot/etc/os-release ; then
+		sudo mount -o remount,ro chroot/sys/fs/selinux
+	fi
 	if test -d "/home/$user/user/Downloads" ; then
 		mount -o bind "/home/$user/user/Downloads" \
 			"chroot/home/$user/.Downloads" ||
