@@ -92,10 +92,7 @@ enter() { # enter the chroot from within the mount namespace
 		mount --bind apk chroot/var/cache/apk
 	fi
 	if grep -q Ubuntu chroot/etc/os-release ; then
-		if ! test "x$(sudo getenforce)" = "xPermissive" ; then
-			sudo setenforce permissive ||
-			error "can't change selinux permissions for login"
-		fi
+		set_permissive
 		sudo mount -o remount,ro chroot/sys/fs/selinux ||
 		error "can't change selinux permissions for apt-get"
 	fi
@@ -260,6 +257,15 @@ test_installation() {
 	EOF
 	error 'Failed test'
 }
+set_permissive() {
+	if test -x /usr/sbin/getenforce ; then
+		if test ! "x$(sudo getenforce)" =  "xPermissive"; then
+			sudo setenforce permissive ||
+			error "can't change selinux permissions for login"
+		fi
+	fi
+}
+
 
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
@@ -281,9 +287,7 @@ debian)
 ubuntu)
 	prepare
 	setup_cdebootstrap
-	if grep -q ID=chromeos /etc/os-release ; then
-		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
-	fi
+	set_permissive
 	run_cdebootstrap ubuntu/xenial \
 		"${packages},software-properties-common" ||
 	error 'cdeboostrap error extracting ubuntu system'
