@@ -17,7 +17,7 @@
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
+'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
 
 ansible_debian() {
 	# https://docs.ansible.com/ansible/latest/installation_guide/
