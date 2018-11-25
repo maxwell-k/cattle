@@ -1,5 +1,6 @@
-A simple script to setup a basic Alpine Linux or Debian environment on a
-`Chromebook`. Uses a `chroot` and mount namespaces. Includes:
+A simple script to setup a basic Alpine Linux, Debian or Ubuntu environment on
+a `Chromebook` or Ubuntu Linux host. Uses a `chroot` and mount namespaces.
+Includes:
 
   - ``vim``
   - ``git``
@@ -10,6 +11,9 @@ A simple script to setup a basic Alpine Linux or Debian environment on a
 
 Usage
 -----
+
+Chrome OS
+=========
 
 `chroots` installed by this script rely on symbolic links. Chrome OS restricts
 symbolic link traversal. An exception that applies to
@@ -57,11 +61,28 @@ Review the contents of ``enter.sh`` then install [#]_ either:
 
         sh ./enter.sh debian
 
+3.  Ubuntu
+
+    .. code:: sh
+
+        sh ./enter.sh ubuntu
+
 Enter the ``chroot``::
 
   ./enter.sh
 
 Then optionally run any relevant Ansible configuration.
+
+Ubuntu
+======
+
+This script has been tested on Ubuntu 16.04 `xenial` and 18.04 `bionic` as a
+host. Usage is as above except `curl` is a prerequisite which must be
+installed with:
+
+```
+sudo apt-get install --yes curl sudo xz-utils
+```
 
 Background
 ----------

@@ -11,13 +11,13 @@
 # The version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
-: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r2.apk}" # No SHA1
+: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r3.apk}" # No SHA1
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'v0.9.0/alpine-chroot-install#e5dfbbdc0c4b3363b99334510976c86bfa6cb251'
+'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
 
 ansible_debian() {
 	# https://docs.ansible.com/ansible/latest/installation_guide/
@@ -92,12 +92,11 @@ enter() { # enter the chroot from within the mount namespace
 		mount --bind apk chroot/var/cache/apk
 	fi
 	if grep -q Ubuntu chroot/etc/os-release ; then
-		if ! test "x$(sudo getenforce)" = "xPermissive" ; then
-			sudo setenforce permissive ||
-			error "can't change selinux permissions for login"
+		set_permissive
+		if grep -q sys/fs/selinux /proc/self/mountinfo ; then
+			sudo mount -o remount,ro chroot/sys/fs/selinux ||
+			error "can't change selinux permissions for apt-get"
 		fi
-		sudo mount -o remount,ro chroot/sys/fs/selinux ||
-		error "can't change selinux permissions for apt-get"
 	fi
 	if test -d "/home/$user/user/Downloads" ; then
 		mount -o bind "/home/$user/user/Downloads" \
@@ -260,6 +259,15 @@ test_installation() {
 	EOF
 	error 'Failed test'
 }
+set_permissive() {
+	if test -x /usr/sbin/getenforce ; then
+		if test ! "x$(sudo getenforce)" =  "xPermissive"; then
+			sudo setenforce permissive ||
+			error "can't change selinux permissions for login"
+		fi
+	fi
+}
+
 
 test "$0" = '/bin/bash' || # to load with . for debugging
 case $1 in
@@ -281,9 +289,7 @@ debian)
 ubuntu)
 	prepare
 	setup_cdebootstrap
-	if grep -q ID=chromeos /etc/os-release ; then
-		sudo setenforce 0 # to avoid dpkg errrors under Chrome OS
-	fi
+	set_permissive
 	run_cdebootstrap ubuntu/xenial \
 		"${packages},software-properties-common" ||
 	error 'cdeboostrap error extracting ubuntu system'

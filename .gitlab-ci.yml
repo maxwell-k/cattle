@@ -1,0 +1,23 @@
+image: ubuntu:18.04
+
+before_script:
+  - apt-get -qq update
+  - apt-get install --yes curl sudo xz-utils > /dev/null 2>&1
+
+alpine_linux:
+  stage: test
+  script:
+    - sh ./enter.sh alpine_linux
+    - printf 'true\n' | sh enter.sh
+
+debian:
+  stage: test
+  script:
+    - sh ./enter.sh debian
+    - printf 'true\n' | sh enter.sh
+
+ubuntu:
+  stage: test
+  script:
+    - sh ./enter.sh ubuntu
+    - printf 'true\n' | sh enter.sh
