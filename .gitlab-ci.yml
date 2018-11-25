@@ -1,0 +1,9 @@
+image: ubuntu:18.04
+
+alpine_linux:
+  stage: test
+  script:
+    - apt-get -qq update
+    - apt-get -qq install --yes curl sudo
+    - sh ./enter.sh alpine_linux
+    - printf 'true\n' | sh enter.sh
