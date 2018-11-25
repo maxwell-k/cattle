@@ -81,7 +81,7 @@ host. Usage is as above except `curl` is a prerequisite which must be
 installed with:
 
 ```
-sudo apt-get install --yes curl sudo
+sudo apt-get install --yes curl sudo xz-utils
 ```
 
 Background

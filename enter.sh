@@ -93,7 +93,7 @@ enter() { # enter the chroot from within the mount namespace
 	fi
 	if grep -q Ubuntu chroot/etc/os-release ; then
 		set_permissive
-		if test -d chroot/sys/fs/selinux ; then
+		if grep -q sys/fs/selinux /proc/self/mountinfo ; then
 			sudo mount -o remount,ro chroot/sys/fs/selinux ||
 			error "can't change selinux permissions for apt-get"
 		fi
