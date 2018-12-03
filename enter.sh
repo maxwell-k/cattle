@@ -12,6 +12,7 @@
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
 : "${BUSYBOX_VERSION:=busybox-static-1.29.3-r3.apk}" # No SHA1
+: "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=xenial}"
 
@@ -281,7 +282,7 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	run_cdebootstrap stretch "${packages},gnupg,dirmngr" ||
+	run_cdebootstrap "${DEBIAN_VERSION}" "${packages},gnupg,dirmngr" ||
 	error 'cdebootstrap error extracting debian system'
 	ansible_debian
 	post_install
