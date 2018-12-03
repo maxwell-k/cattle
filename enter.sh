@@ -8,11 +8,13 @@
 # - no benefit because packages in chroot/var/cache/bootstrap/ are
 #   later deleted
 #
-# The version number used below must be available, so check
+# The busybox version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
 : "${BUSYBOX_VERSION:=busybox-static-1.29.3-r3.apk}" # No SHA1
+: "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
+: "${UBUNTU_VERSION:=xenial}"
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
@@ -280,7 +282,7 @@ alpine_linux)
 debian)
 	prepare
 	setup_cdebootstrap
-	run_cdebootstrap stretch "${packages},gnupg,dirmngr" ||
+	run_cdebootstrap "${DEBIAN_VERSION}" "${packages},gnupg,dirmngr" ||
 	error 'cdebootstrap error extracting debian system'
 	ansible_debian
 	post_install
@@ -290,7 +292,7 @@ ubuntu)
 	prepare
 	setup_cdebootstrap
 	set_permissive
-	run_cdebootstrap ubuntu/xenial \
+	run_cdebootstrap "ubuntu/${UBUNTU_VERSION}" \
 		"${packages},software-properties-common" ||
 	error 'cdeboostrap error extracting ubuntu system'
 	ansible_ubuntu
