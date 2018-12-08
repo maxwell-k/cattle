@@ -54,7 +54,7 @@ default() { # launch the chroot
 		error 'cannot remount suid'
 	fi
 	sudo ./busybox.static unshare -m --propagation=slave \
-		"$(pwd)/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
+		"$PWD/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
 }
 enter() { # enter the chroot from within the mount namespace
 	user="$1"
