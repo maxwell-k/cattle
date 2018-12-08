@@ -191,6 +191,11 @@ post_install() { # add user, group, passwordless sudo and remove vimrc
 		sudo -- rm chroot/etc/vim/vimrc ||
 		error 'Failed to remove vimrc'
 	fi
+	if grep debian_chroot chroot/etc/bash.bashrc >> /dev/null 2>&1 ; then
+		printf "%s" "${PWD##*/}" |
+		sudo -- tee chroot/etc/debian_chroot >> /dev/null ||
+		error 'Failed to store chroot name'
+	fi
 }
 prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
