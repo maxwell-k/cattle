@@ -21,7 +21,7 @@ packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
 
-ansible_debian() {
+ansible_debian() { # install Ansible on Debian
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-debian
 	sudo -- chroot chroot/ apt-key adv --keyserver keyserver.ubuntu.com \
@@ -35,7 +35,7 @@ ansible_debian() {
 	sudo -- chroot chroot/ apt-get install --yes ansible ||
 	error "Failed to install Ansible"
 }
-ansible_ubuntu() {
+ansible_ubuntu() { # install Ansible on Ubuntu
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-ubuntu
 	sudo chroot chroot/ apt-add-repository --yes ppa:ansible/ansible ||
@@ -246,7 +246,7 @@ setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 		error 'cannot mount dev'
 	fi
 }
-test_installation() {
+test_installation() { # show version numbers
 	# use a mount namespace to avoid an intermittent permission denied
 	# error on /dev/null on the git, ssh and ansible commands below
 	sudo ./busybox.static unshare -m --propagation=slave /bin/sh <<-EOF ||
@@ -261,7 +261,7 @@ test_installation() {
 	EOF
 	error 'Failed test'
 }
-set_permissive() {
+set_permissive() { # if appropriate change selinux permissions
 	if test -x /usr/sbin/getenforce ; then
 		if test ! "x$(sudo getenforce)" =  "xPermissive"; then
 			sudo setenforce permissive ||
@@ -294,7 +294,7 @@ ubuntu)
 	set_permissive
 	run_cdebootstrap "ubuntu/${UBUNTU_VERSION}" \
 		"${packages},software-properties-common" ||
-	error 'cdeboostrap error extracting ubuntu system'
+	error 'cdebootstrap error extracting ubuntu system'
 	ansible_ubuntu
 	post_install
 	test_installation
