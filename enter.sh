@@ -11,7 +11,7 @@
 # The busybox version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
-: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r3.apk}" # No SHA1
+: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r4.apk}" # No SHA1
 : "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=xenial}"
