@@ -14,7 +14,7 @@
 : "${BUSYBOX_VERSION:=busybox-static-1.29.3-r4.apk}" # No SHA1
 : "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
-: "${UBUNTU_VERSION:=xenial}"
+: "${UBUNTU_VERSION:=bionic}"
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
