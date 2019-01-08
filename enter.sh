@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script to setup Alpine Linux, Debian or Ubuntu chroots on Chrome OS
 #
-# All functions should exit on error.
+# All functions should call the error function on an error.
 #
 # Downloading packages and installing separately is slower and has no benefit:
 # - slower because of a second validation pass
@@ -17,6 +17,8 @@
 : "${UBUNTU_VERSION:=bionic}"
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
+# used on Debian and Ubuntu where the ansible package uses Python 2.7
+# on Ubuntu packages must come from the main repository not universe
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
@@ -117,7 +119,8 @@ enter() { # enter the chroot from within the mount namespace
 }
 error() { # display error and exit
 	printf 'enter.sh: %s\n' "$1" &&
-	exit 1
+	# When sourced with . don't leave the current shell on an error:
+	test "$0" = '/bin/bash' || exit 1
 }
 install_alpine_linux() { # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
