@@ -119,8 +119,7 @@ enter() { # enter the chroot from within the mount namespace
 }
 error() { # display error and exit
 	printf 'enter.sh: %s\n' "$1" &&
-	# When sourced with . don't leave the current shell on an error:
-	test "$0" = '/bin/bash' || exit 1
+	is_interactive || exit 1
 }
 install_alpine_linux() { # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
@@ -157,6 +156,15 @@ install_alpine_linux() { # install and configure Alpine Linux
 	error "Failed to reset repository"
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
+}
+is_interactive() { # check if running in a known interactive terminal
+	case $0 in
+	/bin/bash) true ;; # Chrome OS developer shell
+	-sh|-dash) true ;; # Alpine Linux chroot
+	-su) true ;; # Ubuntu chroot
+	-bash) true ;; # Ubuntu EC2 instance over SSH
+	*) false ;;
+	esac
 }
 post_install() { # add user, group, passwordless sudo and remove vimrc
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
@@ -279,7 +287,7 @@ set_permissive() { # if appropriate change selinux permissions
 }
 
 
-test "$0" = '/bin/bash' || # to load with . for debugging
+is_interactive ||
 case $1 in
 alpine_linux)
 	prepare
