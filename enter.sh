@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script to setup Alpine Linux, Debian or Ubuntu chroots on Chrome OS
 #
-# All functions should exit on error.
+# All functions should call the error function on an error.
 #
 # Downloading packages and installing separately is slower and has no benefit:
 # - slower because of a second validation pass
@@ -17,37 +17,35 @@
 : "${UBUNTU_VERSION:=bionic}"
 
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
+# used on Debian and Ubuntu where the ansible package uses Python 2.7
+# on Ubuntu packages must come from the main repository not universe
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
 
-ansible_debian() { # install Ansible on Debian
+ansible_debian() { # print commands to install Ansible on Debian
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-debian
-	sudo -- chroot chroot/ apt-key adv --keyserver keyserver.ubuntu.com \
-		--recv-keys 93C4A3FD7BB9C367 ||
-	error "Failed to add key"
-	printf 'deb %s trusty main\n' \
-		'http://ppa.launchpad.net/ansible/ansible/ubuntu' \
-		| sudo -- tee chroot/etc/apt/sources.list.d/ansible.list ||
-	error "Failed to install repo"
-	sudo -- chroot chroot/ apt-get update || error "Failed to update"
-	sudo -- chroot chroot/ apt-get install --yes ansible ||
-	error "Failed to install Ansible"
+	cat <<-EOF
+	apt-key adv --keyserver keyserver.ubuntu.com \
+		--recv-keys 93C4A3FD7BB9C367 &&
+	echo deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main \
+		>> /etc/apt/sources.list.d/ansible.list &&
+	apt-get update &&
+	apt-get install --yes ansible
+	EOF
 }
-ansible_ubuntu() { # install Ansible on Ubuntu
+ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-ubuntu
-	sudo chroot chroot/ apt-add-repository --yes ppa:ansible/ansible ||
-	error "Failed to add ansible repository"
-	sudo chroot chroot/ add-apt-repository --yes universe ||
-	error "Failed to add universe repository"
-	sudo chroot chroot/ apt-get update ||
-	error "Failed to update apt-cache"
-	sudo chroot chroot/ apt-get install --yes ansible ||
-	error "Failed to install Ansible"
+	cat <<-EOF
+	apt-add-repository --yes ppa:ansible/ansible &&
+	add-apt-repository --yes universe &&
+	apt-get update &&
+	apt-get install --yes ansible
+	EOF
 }
-default() { # launch the chroot
+launch() { # the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition ||
@@ -117,7 +115,7 @@ enter() { # enter the chroot from within the mount namespace
 }
 error() { # display error and exit
 	printf 'enter.sh: %s\n' "$1" &&
-	exit 1
+	is_interactive || exit 1
 }
 install_alpine_linux() { # install and configure Alpine Linux
 	if test ! -f alpine-chroot-install ; then
@@ -154,6 +152,15 @@ install_alpine_linux() { # install and configure Alpine Linux
 	error "Failed to reset repository"
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
+}
+is_interactive() { # check if running in a known interactive terminal
+	case $0 in
+	/bin/bash) true ;; # Chrome OS developer shell
+	-sh|-dash) true ;; # Alpine Linux chroot
+	-su) true ;; # Ubuntu chroot
+	-bash) true ;; # Ubuntu EC2 instance over SSH
+	*) false ;;
+	esac
 }
 post_install() { # add user, group, passwordless sudo and remove vimrc
 	if ! grep -q ":$(id -u):" chroot/etc/passwd ; then
@@ -276,7 +283,7 @@ set_permissive() { # if appropriate change selinux permissions
 }
 
 
-test "$0" = '/bin/bash' || # to load with . for debugging
+is_interactive ||
 case $1 in
 alpine_linux)
 	prepare
@@ -289,7 +296,8 @@ debian)
 	setup_cdebootstrap
 	run_cdebootstrap "${DEBIAN_VERSION}" "${packages},gnupg,dirmngr" ||
 	error 'cdebootstrap error extracting debian system'
-	ansible_debian
+	ansible_debian | sudo -- chroot chroot/ sh ||
+	error 'Failed to install Ansible'
 	post_install
 	test_installation
 	;;
@@ -300,7 +308,8 @@ ubuntu)
 	run_cdebootstrap "ubuntu/${UBUNTU_VERSION}" \
 		"${packages},software-properties-common" ||
 	error 'cdebootstrap error extracting ubuntu system'
-	ansible_ubuntu
+	ansible_ubuntu | sudo -- chroot chroot/ sh ||
+	error 'Failed to install Ansible'
 	post_install
 	test_installation
 	;;
@@ -309,7 +318,7 @@ enter) # the chroot from within the mount namespace
 	;;
 *) # default if no argument
 	prepare
-	default
+	launch
 	;;
 esac
 
