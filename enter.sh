@@ -37,17 +37,15 @@ ansible_debian() { # install Ansible on Debian
 	sudo -- chroot chroot/ apt-get install --yes ansible ||
 	error "Failed to install Ansible"
 }
-ansible_ubuntu() { # install Ansible on Ubuntu
+ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-ubuntu
-	sudo chroot chroot/ apt-add-repository --yes ppa:ansible/ansible ||
-	error "Failed to add ansible repository"
-	sudo chroot chroot/ add-apt-repository --yes universe ||
-	error "Failed to add universe repository"
-	sudo chroot chroot/ apt-get update ||
-	error "Failed to update apt-cache"
-	sudo chroot chroot/ apt-get install --yes ansible ||
-	error "Failed to install Ansible"
+	cat <<-EOF
+	apt-add-repository --yes ppa:ansible/ansible &&
+	add-apt-repository --yes universe &&
+	apt-get update &&
+	apt-get install --yes ansible
+	EOF
 }
 default() { # launch the chroot
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
@@ -311,7 +309,8 @@ ubuntu)
 	run_cdebootstrap "ubuntu/${UBUNTU_VERSION}" \
 		"${packages},software-properties-common" ||
 	error 'cdebootstrap error extracting ubuntu system'
-	ansible_ubuntu
+	ansible_ubuntu | sudo -- chroot chroot/ sh ||
+	error 'Failed to install Ansible'
 	post_install
 	test_installation
 	;;
