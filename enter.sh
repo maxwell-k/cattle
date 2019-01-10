@@ -23,19 +23,17 @@ packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
 
-ansible_debian() { # install Ansible on Debian
+ansible_debian() { # print commands to install Ansible on Debian
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-debian
-	sudo -- chroot chroot/ apt-key adv --keyserver keyserver.ubuntu.com \
-		--recv-keys 93C4A3FD7BB9C367 ||
-	error "Failed to add key"
-	printf 'deb %s trusty main\n' \
-		'http://ppa.launchpad.net/ansible/ansible/ubuntu' \
-		| sudo -- tee chroot/etc/apt/sources.list.d/ansible.list ||
-	error "Failed to install repo"
-	sudo -- chroot chroot/ apt-get update || error "Failed to update"
-	sudo -- chroot chroot/ apt-get install --yes ansible ||
-	error "Failed to install Ansible"
+	cat <<-EOF
+	apt-key adv --keyserver keyserver.ubuntu.com \
+		--recv-keys 93C4A3FD7BB9C367 &&
+	echo deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main \
+		>> /etc/apt/sources.list.d/ansible.list &&
+	apt-get update &&
+	apt-get install --yes ansible
+	EOF
 }
 ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	# https://docs.ansible.com/ansible/latest/installation_guide/
@@ -298,7 +296,8 @@ debian)
 	setup_cdebootstrap
 	run_cdebootstrap "${DEBIAN_VERSION}" "${packages},gnupg,dirmngr" ||
 	error 'cdebootstrap error extracting debian system'
-	ansible_debian
+	ansible_debian | sudo -- chroot chroot/ sh ||
+	error 'Failed to install Ansible'
 	post_install
 	test_installation
 	;;
