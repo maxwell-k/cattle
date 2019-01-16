@@ -11,7 +11,7 @@
 # The busybox version number used below must be available, so check
 # https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
-: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r5.apk}" # No SHA1
+: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r9.apk}" # No SHA1
 : "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=bionic}"
@@ -39,7 +39,7 @@ ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-ubuntu
 	cat <<-EOF
-	apt-add-repository --yes ppa:ansible/ansible &&
+	add-apt-repository --yes ppa:ansible/ansible &&
 	add-apt-repository --yes universe &&
 	apt-get update &&
 	apt-get install --yes ansible
