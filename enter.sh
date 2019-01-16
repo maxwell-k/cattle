@@ -39,7 +39,7 @@ ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	# https://docs.ansible.com/ansible/latest/installation_guide/
 	# intro_installation.html#latest-releases-via-apt-ubuntu
 	cat <<-EOF
-	apt-add-repository --yes ppa:ansible/ansible &&
+	add-apt-repository --yes ppa:ansible/ansible &&
 	add-apt-repository --yes universe &&
 	apt-get update &&
 	apt-get install --yes ansible
