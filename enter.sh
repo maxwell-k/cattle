@@ -209,7 +209,6 @@ prepare() { # including mount exec, cd, donwload busybox and make ./tmp
 		sudo mount -o remount,exec /mnt/stateful_partition ||
 		error 'cannot mount exec'
 	fi
-	cd "$(dirname "${0}")" || error 'cannot change directory'
 	test -d tmp || mkdir tmp || error 'cannot create tmp'
 	if test ! -x busybox.static ; then
 		curl --silent "$busybox" |
@@ -283,6 +282,7 @@ set_permissive() { # if appropriate change selinux permissions
 }
 
 
+is_interactive || cd "$(dirname "${0}")" || error 'cannot change directory'
 is_interactive ||
 case $1 in
 alpine_linux)
