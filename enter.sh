@@ -16,6 +16,7 @@
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=bionic}"
 
+ar='https://busybox.net/downloads/binaries/1.27.1-i686/busybox_AR'
 busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
 # used on Debian and Ubuntu where the ansible package uses Python 2.7
 # on Ubuntu packages must come from the main repository not universe
@@ -228,9 +229,7 @@ run_cdebootstrap() {
 setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
 		# Download a compiled busybox ar
-		printf 'location\nfail\nsilent\nurl %s%s' \
-		'https://busybox.net/downloads/binaries/1.27.1-i686/' \
-		'busybox_AR' |
+		printf 'location\nfail\nsilent\nurl %s' "${ar}" |
 		curl -K - > ./ar ||
 		error 'error downloading ar'
 		chmod u+x ./ar ||
