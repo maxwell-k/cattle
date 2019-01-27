@@ -8,16 +8,13 @@
 # - no benefit because packages in chroot/var/cache/bootstrap/ are
 #   later deleted
 #
-# The busybox version number used below must be available, so check
-# https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
-: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r9.apk}" # No SHA1
 : "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=bionic}"
 
-ar='https://busybox.net/downloads/binaries/1.30.0-i686/busybox_AR'
-busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
+ar='https://busybox.net/downloads/binaries/1.30.0-i686/busybox_AR' # No SHA1
+busybox="$MIRROR/v3.9/main/x86_64/busybox-static-1.29.3-r10.apk" # No SHA1
 # used on Debian and Ubuntu where the ansible package uses Python 2.7
 # on Ubuntu packages must come from the main repository not universe
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
