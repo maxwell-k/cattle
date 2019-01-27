@@ -204,7 +204,7 @@ post_install() { # add user, group, passwordless sudo and remove vimrc
 		error 'Failed to store chroot name'
 	fi
 }
-prepare() { # including mount exec, cd, donwload busybox and make ./tmp
+prepare() { # including mount exec, download busybox and make ./tmp
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
 		sudo mount -o remount,exec /mnt/stateful_partition ||
 		error 'cannot mount exec'
