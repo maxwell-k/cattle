@@ -8,15 +8,13 @@
 # - no benefit because packages in chroot/var/cache/bootstrap/ are
 #   later deleted
 #
-# The busybox version number used below must be available, so check
-# https://pkgs.alpinelinux.org/package/edge/main/x86_64/busybox-static
 : "${BRANCH:=edge/main}"
-: "${BUSYBOX_VERSION:=busybox-static-1.29.3-r9.apk}" # No SHA1
 : "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=bionic}"
 
-busybox="$MIRROR/$BRANCH/x86_64/$BUSYBOX_VERSION"
+ar='https://busybox.net/downloads/binaries/1.30.0-i686/busybox_AR' # No SHA1
+busybox="$MIRROR/v3.9/main/x86_64/busybox-static-1.29.3-r10.apk" # No SHA1
 # used on Debian and Ubuntu where the ansible package uses Python 2.7
 # on Ubuntu packages must come from the main repository not universe
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
@@ -204,7 +202,7 @@ post_install() { # add user, group, passwordless sudo and remove vimrc
 		error 'Failed to store chroot name'
 	fi
 }
-prepare() { # including mount exec, cd, donwload busybox and make ./tmp
+prepare() { # including mount exec, download busybox and make ./tmp
 	if grep -E -q '/mnt/stateful_partition .*noexec' /proc/mounts ; then
 		sudo mount -o remount,exec /mnt/stateful_partition ||
 		error 'cannot mount exec'
@@ -228,9 +226,7 @@ run_cdebootstrap() {
 setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
 		# Download a compiled busybox ar
-		printf 'location\nfail\nsilent\nurl %s%s' \
-		'https://busybox.net/downloads/binaries/1.27.1-i686/' \
-		'busybox_AR' |
+		printf 'location\nfail\nsilent\nurl %s' "${ar}" |
 		curl -K - > ./ar ||
 		error 'error downloading ar'
 		chmod u+x ./ar ||
