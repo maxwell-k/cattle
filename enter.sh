@@ -98,8 +98,9 @@ __enter() { # enter the chroot from within the mount mamespace
 		error "can't bind Downloads"
 	fi
 	if grep -q "$user" chroot/etc/passwd ; then
-		chroot chroot/ su -l "$user"
+		exec chroot chroot/ su -l "$user"
 	else
+		# something went wrong, exec might terminate shell
 		chroot chroot/ /bin/sh
 	fi
 }
@@ -311,7 +312,7 @@ __enter) # the chroot from within the mount namespace
 		sudo mount -o remount,suid /mnt/stateful_partition ||
 		error 'cannot remount suid'
 	fi
-	sudo ./busybox.static unshare -m --propagation=slave \
+	exec sudo ./busybox.static unshare -m --propagation=slave \
 		"$PWD/$(basename "$0")" "__enter" "$(id -nu)" "$(id -ng)"
 	;;
 esac
