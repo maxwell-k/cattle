@@ -272,16 +272,15 @@ set_permissive() { # if appropriate change selinux permissions
 
 
 is_interactive || cd "$(dirname "${0}")" || error 'cannot change directory'
+is_interactive || prepare
 is_interactive ||
 case $1 in
 alpine_linux)
-	prepare
 	install_alpine_linux
 	post_install
 	test_installation
 	;;
 debian)
-	prepare
 	setup_cdebootstrap
 	run_cdebootstrap "${DEBIAN_VERSION}" "${packages},gnupg,dirmngr" ||
 	error 'cdebootstrap error extracting debian system'
@@ -291,7 +290,6 @@ debian)
 	test_installation
 	;;
 ubuntu)
-	prepare
 	setup_cdebootstrap
 	set_permissive
 	run_cdebootstrap "ubuntu/${UBUNTU_VERSION}" \
@@ -306,7 +304,6 @@ __enter) # the chroot from within the mount namespace
 	__enter "$2" "$3"
 	;;
 *) # default if no argument
-	prepare
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition ||
