@@ -44,7 +44,6 @@ ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	EOF
 }
 launch() { # the chroot
-	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
 		sudo mount -o remount,suid /mnt/stateful_partition ||
 		error 'cannot remount suid'
@@ -314,6 +313,7 @@ enter) # the chroot from within the mount namespace
 	;;
 *) # default if no argument
 	prepare
+	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
 	launch
 	;;
 esac
