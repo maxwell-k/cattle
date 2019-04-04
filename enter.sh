@@ -53,7 +53,7 @@ launch() { # the chroot
 		"$PWD/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
 }
 enter() { # enter the chroot from within the mount namespace
-	user="$1"
+	user="$1" # at this point LOGNAME is root
 	group="$2"
 	for i in \
 		media/removable \
