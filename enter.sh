@@ -49,9 +49,10 @@ launch() { # the chroot
 		error 'cannot remount suid'
 	fi
 	sudo ./busybox.static unshare -m --propagation=slave \
-		"$PWD/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
+		"$PWD/$(basename "$0")" "__enter" "$(id -nu)" "$(id -ng)"
 }
-enter() { # enter the chroot from within the mount namespace
+__enter() { # enter the chroot from within the mount namespace
+	test -n "$1" -a -n "$2" || error "__enter must only be used internally"
 	user="$1" # at this point LOGNAME is root
 	group="$2"
 	for i in \
@@ -308,8 +309,8 @@ ubuntu)
 	post_install
 	test_installation
 	;;
-enter) # the chroot from within the mount namespace
-	enter "$2" "$3"
+__enter) # the chroot from within the mount namespace
+	__enter "$2" "$3"
 	;;
 *) # default if no argument
 	prepare
