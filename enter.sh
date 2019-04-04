@@ -43,17 +43,9 @@ ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	apt-get install --yes ansible
 	EOF
 }
-launch() { # the chroot
-	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
-	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
-		sudo mount -o remount,suid /mnt/stateful_partition ||
-		error 'cannot remount suid'
-	fi
-	sudo ./busybox.static unshare -m --propagation=slave \
-		"$PWD/$(basename "$0")" "enter" "$(id -nu)" "$(id -ng)"
-}
-enter() { # enter the chroot from within the mount namespace
-	user="$1"
+__enter() { # enter the chroot from within the mount mamespace
+	test -n "$1" -a -n "$2" || error "__enter must only be used internally"
+	user="$1" # at this point LOGNAME is root
 	group="$2"
 	for i in \
 		media/removable \
@@ -106,8 +98,9 @@ enter() { # enter the chroot from within the mount namespace
 		error "can't bind Downloads"
 	fi
 	if grep -q "$user" chroot/etc/passwd ; then
-		chroot chroot/ su -l "$user"
+		exec chroot chroot/ su -l "$user"
 	else
+		# something went wrong, exec might terminate shell
 		chroot chroot/ /bin/sh
 	fi
 }
@@ -279,16 +272,15 @@ set_permissive() { # if appropriate change selinux permissions
 
 
 is_interactive || cd "$(dirname "${0}")" || error 'cannot change directory'
+is_interactive || prepare
 is_interactive ||
 case $1 in
 alpine_linux)
-	prepare
 	install_alpine_linux
 	post_install
 	test_installation
 	;;
 debian)
-	prepare
 	setup_cdebootstrap
 	run_cdebootstrap "${DEBIAN_VERSION}" "${packages},gnupg,dirmngr" ||
 	error 'cdebootstrap error extracting debian system'
@@ -298,7 +290,6 @@ debian)
 	test_installation
 	;;
 ubuntu)
-	prepare
 	setup_cdebootstrap
 	set_permissive
 	run_cdebootstrap "ubuntu/${UBUNTU_VERSION}" \
@@ -309,12 +300,17 @@ ubuntu)
 	post_install
 	test_installation
 	;;
-enter) # the chroot from within the mount namespace
-	enter "$2" "$3"
+__enter) # the chroot from within the mount namespace
+	__enter "$2" "$3"
 	;;
 *) # default if no argument
-	prepare
-	launch
+	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
+	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
+		sudo mount -o remount,suid /mnt/stateful_partition ||
+		error 'cannot remount suid'
+	fi
+	exec sudo ./busybox.static unshare -m --propagation=slave \
+		"$PWD/$(basename "$0")" "__enter" "$(id -nu)" "$(id -ng)"
 	;;
 esac
 
