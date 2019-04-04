@@ -43,15 +43,7 @@ ansible_ubuntu() { # print commands to install Ansible on Ubuntu
 	apt-get install --yes ansible
 	EOF
 }
-launch() { # the chroot
-	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
-		sudo mount -o remount,suid /mnt/stateful_partition ||
-		error 'cannot remount suid'
-	fi
-	sudo ./busybox.static unshare -m --propagation=slave \
-		"$PWD/$(basename "$0")" "__enter" "$(id -nu)" "$(id -ng)"
-}
-__enter() { # enter the chroot from within the mount namespace
+__enter() { # enter the chroot from within the mount mamespace
 	test -n "$1" -a -n "$2" || error "__enter must only be used internally"
 	user="$1" # at this point LOGNAME is root
 	group="$2"
@@ -315,7 +307,12 @@ __enter) # the chroot from within the mount namespace
 *) # default if no argument
 	prepare
 	test -d chroot || error 'run "sh enter.sh alpine_linux" first'
-	launch
+	if grep -E -q '/mnt/stateful_partition .*suid' /proc/mounts ; then
+		sudo mount -o remount,suid /mnt/stateful_partition ||
+		error 'cannot remount suid'
+	fi
+	sudo ./busybox.static unshare -m --propagation=slave \
+		"$PWD/$(basename "$0")" "__enter" "$(id -nu)" "$(id -ng)"
 	;;
 esac
 
