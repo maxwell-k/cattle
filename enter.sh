@@ -3,32 +3,28 @@
 #
 # All functions should call the error function on an error.
 #
-# Downloading packages and installing separately is slower and has no benefit:
-# - slower because of a second validation pass
-# - no benefit because packages in chroot/var/cache/bootstrap/ are
-#   later deleted
-#
 : "${BRANCH:=edge/main}"
 : "${DEBIAN_VERSION:=stretch}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=bionic}"
+: "${ALPINE_PACKAGES=vim git openssh ansible curl}"
 
-ar='https://busybox.net/downloads/binaries/1.30.0-i686/busybox_AR' # No SHA1
-busybox="$MIRROR/v3.9/main/x86_64/busybox-static-1.29.3-r10.apk" # No SHA1
-# used on Debian and Ubuntu where the ansible package uses Python 2.7
+ar='https://busybox.net/downloads/binaries/1.30.0-i686/busybox_AR' # No checksum
+busybox="$MIRROR/v3.9/main/x86_64/busybox-static-1.29.3-r10.apk" # No checksum
+# packages is used on Debian and Ubuntu where the ansible package uses Python 2.7
 # on Ubuntu packages must come from the main repository not universe
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
+ppa='http://ppa.launchpad.net/ansible/ansible/ubuntu'
+cdebootstrap='http://ftp.uk.debian.org/debian/pool/main/c/cdebootstrap/'\
+'cdebootstrap-static_0.7.7+b1_amd64.deb' # No checksum
 
 ansible_debian() { # print commands to install Ansible on Debian
-	# https://docs.ansible.com/ansible/latest/installation_guide/
-	# intro_installation.html#latest-releases-via-apt-debian
 	cat <<-EOF
 	apt-key adv --keyserver keyserver.ubuntu.com \
 		--recv-keys 93C4A3FD7BB9C367 &&
-	echo deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main \
-		>> /etc/apt/sources.list.d/ansible.list &&
+	echo deb "$ppa" trusty main >> /etc/apt/sources.list.d/ansible.list &&
 	apt-get update &&
 	apt-get install --yes ansible
 	EOF
@@ -133,7 +129,7 @@ install_alpine_linux() { # install and configure Alpine Linux
 		./alpine-chroot-install \
 			-d "$PWD/chroot" \
 			-t "$PWD/tmp" \
-			-p "vim git openssh sudo ansible curl" \
+			-p "sudo ${ALPINE_PACKAGES}" \
 			-m "$MIRROR" \
 			-b edge \
 			||
@@ -218,19 +214,14 @@ run_cdebootstrap() {
 }
 setup_cdebootstrap() { # make sure an executable ./cdebootsrap is available
 	if test ! -x ./ar ; then
-		# Download a compiled busybox ar
-		printf 'location\nfail\nsilent\nurl %s' "${ar}" |
-		curl -K - > ./ar ||
+		curl --fail --location --silent --output ./ar "$ar" ||
 		error 'error downloading ar'
 		chmod u+x ./ar ||
 		error 'error setting permissions on ar'
 	fi
 	if test ! -f ./cdebootstrap.deb ; then
-		printf 'location\nfail\nsilent\nurl %s%s%s' \
-		'http://ftp.uk.debian.org/debian/' \
-		'pool/main/c/cdebootstrap/' \
-		'cdebootstrap-static_0.7.7+b1_amd64.deb' |
-		curl -K - > cdebootstrap.deb ||
+		curl --fail --location --silent --output cdebootstrap.deb \
+			"$cdebootstrap" ||
 		error 'error downloading cdeboostrap'
 	fi
 	if test ! -x ./cdebootstrap ; then
