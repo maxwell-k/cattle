@@ -9,6 +9,18 @@ Includes:
   - ``ansible`` version 2.4
   - ``curl``
 
+The script follows the `official instructions`_ for installing Ansible on
+Ubuntu and Debian.
+
+To install a release version of Alpine Linux without any packages use:
+
+```
+BRANCH=v3.9/main ALPINE_PACKAGES="" ./enter.sh alpine_linux
+```
+
+.. _official instructions: https://docs.ansible.com/ansible/latest/
+   installation_guide/intro_installation.html#latest-releases-via-apt-debian
+
 Usage
 -----
 
@@ -73,8 +85,8 @@ Enter the ``chroot``::
 
 Then optionally run any relevant Ansible configuration.
 
-Ubuntu
-======
+Ubuntu and Debian
+=================
 
 This script has been tested on Ubuntu 16.04 `xenial` and 18.04 `bionic` as a
 host. Usage is as above except `curl` is a prerequisite which must be
@@ -83,6 +95,10 @@ installed with:
 ```
 sudo apt-get install --yes curl sudo xz-utils
 ```
+
+For these two distributions downloading packages and installing separately is
+slower and has no benefit. Slower because of a second validation pass. No
+benefit because packages in `chroot/var/cache/bootstrap/` are later deleted
 
 Background
 ----------
