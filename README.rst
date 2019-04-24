@@ -1,22 +1,26 @@
+======
+Cattle
+======
+
 A simple script to setup a basic Alpine Linux, Debian or Ubuntu environment on
 a `Chromebook` or Ubuntu Linux host. Uses a `chroot` and mount namespaces.
 Includes:
 
-  - ``vim``
-  - ``git``
-  - ``openssh`` client utilities
-  - ``sudo``
-  - ``ansible`` version 2.4
-  - ``curl``
+- ``vim``
+- ``git``
+- ``openssh`` client utilities
+- ``sudo``
+- ``ansible`` version 2.4
+- ``curl``
 
 The script follows the `official instructions`_ for installing Ansible on
 Ubuntu and Debian.
 
 To install a release version of Alpine Linux without any packages use:
 
-```
-BRANCH=v3.9/main ALPINE_PACKAGES="" ./enter.sh alpine_linux
-```
+.. code:: sh
+
+  BRANCH=v3.9/main ALPINE_PACKAGES="" ./enter.sh alpine_linux
 
 .. _official instructions: https://docs.ansible.com/ansible/latest/
    installation_guide/intro_installation.html#latest-releases-via-apt-debian
@@ -83,18 +87,20 @@ Enter the ``chroot``::
 
   ./enter.sh
 
-Then optionally run any relevant Ansible configuration.
+.. [#] This command is run with ``sh`` as on boot ``/mnt/stateful_partition``
+  is mounted ``noexec``, so calling directly with ``./enter.sh`` will not
+  work. The script remounts the partition ``exec``.
 
 Ubuntu and Debian
 =================
 
 This script has been tested on Ubuntu 16.04 `xenial` and 18.04 `bionic` as a
-host. Usage is as above except `curl` is a prerequisite which must be
-installed with:
+host. Usage is as above except that a few prerequisites must be
+installed beforehand:
 
-```
-sudo apt-get install --yes curl sudo xz-utils
-```
+.. code:: sh
+
+  sudo apt-get install --yes curl sudo xz-utils
 
 For these two distributions downloading packages and installing separately is
 slower and has no benefit. Slower because of a second validation pass. No
@@ -122,24 +128,38 @@ day computing.
 busybox.static
 --------------
 
-- Alpine Linux includes a static version of ``busybox``
-- The wiki_ points to a list of mirrors_, only a few support HTTPS including
-  the ``nl`` and ``uk`` mirrors
-- There is no `SHA1` available for BusyBox static ``.apk``
-- BusyBox applets don't support the ``--version`` argument, so check with::
+Alpine Linux includes a statically compiled version of ``busybox``. There is
+no `SHA1` available for the BusyBox static ``.apk``. The Alpine Linux wiki_
+has a list of available mirrors_; however only a few of these support HTTPS
+for example ``nl`` and ``uk``. By default the binary is therefore downloaded
+over HTTP.
+
+BusyBox applets don't support the ``--version`` argument, so check with:
+
+.. code:: sh
 
   ./busybox.static | head -n 1
 
 .. _wiki: https://wiki.alpinelinux.org/wiki/Alpine_Linux:Mirrors
 .. _mirrors: http://rsync.alpinelinux.org/alpine/MIRRORS.txt
 
+HTTP
+----
+
+The PPA for Ubuntu and Debian uses HTTP however packages are signed.
+
+As noted above BusyBox is downloaded over HTTP. Similarly ``cdebootstrap`` is
+downloaded from the Debian UK mirror over HTTP.
+
 Privileges
 ----------
 
-Mount namespaces need ``CONFIG_USER_NS`` to be set in the kernel::
+Mount namespaces need ``CONFIG_USER_NS`` to be set in the kernel:
 
-  sudo modprobe configs
-  gunzip -c /proc/config.gz  | grep CONFIG_USER_NS
+.. code:: sh
+
+  sudo modprobe configs &&
+  gunzip -c /proc/config.gz | grep CONFIG_USER_NS
 
 Running ``./busybox.static unshare -m`` as a normal user results in::
 
@@ -151,7 +171,7 @@ appears not to work.
 Networking
 ----------
 
-*Before running any sort of server that accepts connections, you must adjust
+*Before running any sort of process that accepts connections, you must adjust
 the ``iptables`` rules.*
 
 The default ``iptabes`` rules from a `Chromebook` are::
@@ -170,22 +190,24 @@ The default ``iptabes`` rules from a `Chromebook` are::
   -A OUTPUT -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
   -A OUTPUT -o lo -j ACCEPT
 
-Open the port for ``git`` with::
+Open the port for ``git`` with:
 
-  $ sudo iptables -A INPUT -p tcp --dport 9418 -j ACCEPT
+.. code:: sh
 
-Close it again::
+  sudo iptables -A INPUT -p tcp --dport 9418 -j ACCEPT
 
-  $ sudo iptables -D INPUT -p tcp --dport 9418 -j ACCEPT
+Close it again:
 
-List and delete rules by line number::
+.. code:: sh
 
-  $ sudo iptables -L --line-numbers
-  $ sudo iptables -D INPUT <number from above command>
+  sudo iptables -D INPUT -p tcp --dport 9418 -j ACCEPT
 
-.. [#] This command is run with ``sh`` as on boot ``/mnt/stateful_partition``
-  is mounted ``noexec``, so calling directly with ``./enter.sh`` will not
-  work. The script remounts the partition ``exec``.
+List and delete rules by line number:
+
+.. code:: sh
+
+  sudo iptables -L --line-numbers
+  sudo iptables -D INPUT <number from above command>
 
 Passwords and Ubuntu
 --------------------
@@ -208,7 +230,7 @@ Whereas in permissive mode this works::
   $ sh enter.sh
   %< --- success --- %<
 
-A workaround is to replace `chroot chroot/ su -l "$user"` with `chroot chroot/
-sudo -i -u "$user"` in enter.sh.
+A workaround is to replace ``chroot chroot/ su -l "$user"`` with ``chroot
+chroot/ sudo -i -u "$user"`` in enter.sh.
 
 .. vim: ft=rst expandtab shiftwidth=2 tabstop=2 softtabstop=2
