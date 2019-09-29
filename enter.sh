@@ -4,7 +4,7 @@
 # All functions should call the error function on an error.
 #
 : "${BRANCH:=edge/main}"
-: "${DEBIAN_VERSION:=stretch}"
+: "${DEBIAN_VERSION:=buster}"
 : "${MIRROR:=http://dl-cdn.alpinelinux.org/alpine}"
 : "${UBUNTU_VERSION:=bionic}"
 : "${ALPINE_PACKAGES=vim git openssh ansible curl}"
@@ -18,7 +18,7 @@ script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
 'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
 ppa='http://ppa.launchpad.net/ansible/ansible/ubuntu'
 cdebootstrap='http://ftp.uk.debian.org/debian/pool/main/c/cdebootstrap/'\
-'cdebootstrap-static_0.7.7+b1_amd64.deb' # No checksum
+'cdebootstrap-static_0.7.7+b12_amd64.deb' # No checksum
 
 ansible_debian() { # print commands to install Ansible on Debian
 	cat <<-EOF
