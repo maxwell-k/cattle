@@ -136,7 +136,7 @@ install_alpine_linux() { # install and configure Alpine Linux
 	error "Failed to run ./alpine-chroot-install"
 	printf '%s\n' "$MIRROR/$BRANCH" |
 	sudo tee chroot/etc/apk/repositories >> /dev/null ||
-	error "Failed to reset repository"
+	error "Failed to limit apk repositories to just $BRANCH"
 	sudo rm -f chroot/enter-chroot chroot/env.sh ||
 	error "Failed to clean up after alpine-chroot-install repository"
 }
