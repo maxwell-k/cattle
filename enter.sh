@@ -49,6 +49,7 @@ __enter() { # enter the chroot from within the mount mamespace
 		sys \
 		dev \
 		run \
+		srv \
 		; do
 		if test -d "/$i" ; then
 			test -d "chroot/$i" || mkdir "chroot/$i" ||
