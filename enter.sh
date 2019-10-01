@@ -131,7 +131,7 @@ install_alpine_linux() { # install and configure Alpine Linux
 			-t "$PWD/tmp" \
 			-p "sudo ${ALPINE_PACKAGES}" \
 			-m "$MIRROR" \
-			-b edge \
+			-b "${BRANCH%/*}" \
 			||
 	error "Failed to run ./alpine-chroot-install"
 	printf '%s\n' "$MIRROR/$BRANCH" |
