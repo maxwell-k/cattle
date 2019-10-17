@@ -15,7 +15,8 @@ busybox="$MIRROR/v3.9/main/x86_64/busybox-static-1.29.3-r10.apk" # No checksum
 # on Ubuntu packages must come from the main repository not universe
 packages="vim,git,openssh-client,sudo,curl,python3-setuptools"
 script='https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/'\
-'v0.10.0/alpine-chroot-install#dcceb34aa63767579f533a7f2e733c4d662b0d1b'
+'v0.10.0/alpine-chroot-install'\
+'#92f7511aa9960ddb7f851910053e53f16951ebeaa418ca30de5eda1541dfd66f'
 ppa='http://ppa.launchpad.net/ansible/ansible/ubuntu'
 cdebootstrap='http://ftp.uk.debian.org/debian/pool/main/c/cdebootstrap/'\
 'cdebootstrap-static_0.7.7+b12_amd64.deb' # No checksum
@@ -110,7 +111,7 @@ install_alpine_linux() { # install and configure Alpine Linux
 		curl --silent -O "${script%#*}" ||
 		error "downloading alpine-chroot-install failed"
 		if ! echo "${script#*#} alpine-chroot-install" \
-			| sha1sum -c > /dev/null
+			| sha256sum -c > /dev/null
 		then
 			rm -f alpine-chroot-install
 			error 'error getting alpine-chroot-install'
