@@ -81,7 +81,8 @@ __enter() { # enter the chroot from within the mount mamespace
 		fi &&
 		mount --bind apk chroot/var/cache/apk
 	fi
-	if grep -q Ubuntu chroot/etc/os-release ; then
+	if grep -q Ubuntu /etc/os-release && \
+			grep -q Ubuntu chroot/etc/os-release ; then
 		set_permissive
 		if grep -q sys/fs/selinux /proc/self/mountinfo ; then
 			sudo mount -o remount,ro chroot/sys/fs/selinux ||
@@ -265,7 +266,7 @@ test_installation() { # show version numbers
 }
 set_permissive() { # if appropriate change selinux permissions
 	if test -x /usr/sbin/getenforce ; then
-		if test ! "x$(sudo getenforce)" =  "xPermissive"; then
+		if [ "$(sudo getenforce)" = "Enforcing" ] ; then
 			sudo setenforce permissive ||
 			error "can't change selinux permissions for login"
 		fi
