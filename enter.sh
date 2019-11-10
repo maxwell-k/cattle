@@ -98,9 +98,12 @@ __enter() { # enter the chroot from within the mount mamespace
 			"chroot/home/$user/.Downloads" ||
 		error "can't bind Downloads"
 	fi
-	if [ -d /var/srv -a -d /run/host/var/srv ] ; then
-		# to mirror toolbox on Fedora Silverblue
-		# create /run/host/var/srv manually each reboot
+	# On Fedora Silverblue mirror toolbox
+	if grep -q OSTREE_VERSION /etc/os-release ; then
+		for i in /run/host /run/host/var /run/host/var/srv ; do
+			test -d $i || mkdir $i
+			test -d chroot/$i || mkdir chroot/$i
+		done
 		mount -o bind "/var/srv" \
 			"chroot/run/host/var/srv" ||
 		error "can't bind var/srv"
