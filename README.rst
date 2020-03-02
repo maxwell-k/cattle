@@ -10,7 +10,7 @@ Includes:
 - ``git``
 - ``openssh`` client utilities
 - ``sudo``
-- ``ansible`` version 2.4
+- ``ansible``
 - ``curl``
 
 The script follows the `official instructions`_ for installing Ansible on
@@ -46,50 +46,38 @@ replace ``cattle`` in the steps below with your choice of directory.
   cd /mnt/stateful_partition/dev_image &&
   sudo mkdir cattle &&
   cd cattle &&
-  sudo chown "$(id -nu):$(id -ng)" . &&
-  curl -O https://gitlab.com/keith.maxwell/cattle/raw/master/enter.sh &&
+  sudo chown "$LOGNAME:$LOGNAME" . &&
+  curl -O https://gitlab.com/maxwell-k/cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
 Optionally and if using Alpine Linux create a directory to cache downloaded
 files, either ``mkdir apk`` or if you prefer a directory to be shared across
-chroots, first create create it, if necessary:
+chroots:
 
 .. code:: sh
 
-    cd /mnt/stateful_partition &&
-    sudo mkdir apk &&
-    sudo chown "$(id -nu):$(id -ng)" apk &&
-    cd -
+  cd /mnt/stateful_partition &&
+  if [ ! -d apk ]; then sudo mkdir apk ; fi &&
+  sudo chown "$LOGNAME:$LOGNAME" apk &&
+  cd /mnt/stateful_partition/dev_image/cattle &&
+  ln -s /mnt/stateful_partition/apk
 
-Then link to it with ``ln -s /mnt/stateful_partition/apk``.
+Review the contents of ``enter.sh`` then install the distribution required with
+one of the following commands:
 
-Review the contents of ``enter.sh`` then install [#]_ either:
+.. code:: sh
 
-1.  Alpine Linux
+  sh ./enter.sh alpine_linux
+  sh ./enter.sh debian
+  sh ./enter.sh ubuntu
 
-    .. code:: sh
-
-        sh ./enter.sh alpine_linux
-
-2.  Debian
-
-    .. code:: sh
-
-        sh ./enter.sh debian
-
-3.  Ubuntu
-
-    .. code:: sh
-
-        sh ./enter.sh ubuntu
-
-Enter the ``chroot``::
-
-  ./enter.sh
-
-.. [#] This command is run with ``sh`` as on boot ``/mnt/stateful_partition``
+.. note:: This command is run with ``sh`` as on boot ``/mnt/stateful_partition``
   is mounted ``noexec``, so calling directly with ``./enter.sh`` will not
   work. The script remounts the partition ``exec``.
+
+Finally, enter the ``chroot``::
+
+  ./enter.sh
 
 Ubuntu and Debian
 =================
