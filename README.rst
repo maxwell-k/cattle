@@ -47,7 +47,7 @@ replace ``cattle`` in the steps below with your choice of directory.
   sudo mkdir cattle &&
   cd cattle &&
   sudo chown "$(id -nu):$(id -ng)" . &&
-  curl -O https://gitlab.com/keith.maxwell/cattle/raw/master/enter.sh &&
+  curl -O https://gitlab.com/maxwell-k/cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
 Optionally and if using Alpine Linux create a directory to cache downloaded
