@@ -46,7 +46,7 @@ replace ``cattle`` in the steps below with your choice of directory.
   cd /mnt/stateful_partition/dev_image &&
   sudo mkdir cattle &&
   cd cattle &&
-  sudo chown "$(id -nu):$(id -ng)" . &&
+  sudo chown "$LOGNAME:$LOGNAME" . &&
   curl -O https://gitlab.com/maxwell-k/cattle/raw/master/enter.sh &&
   chmod u+x enter.sh
 
@@ -58,7 +58,7 @@ chroots, first create create it, if necessary:
 
     cd /mnt/stateful_partition &&
     sudo mkdir apk &&
-    sudo chown "$(id -nu):$(id -ng)" apk &&
+    sudo chown "$LOGNAME:$LOGNAME" apk &&
     cd -
 
 Then link to it with ``ln -s /mnt/stateful_partition/apk``.
