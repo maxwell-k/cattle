@@ -49,6 +49,7 @@ __enter() { # enter the chroot from within the mount mamespace
 	for i in \
 		media/removable \
 		mnt/stateful_partition \
+		var/srv \
 		sys \
 		dev \
 		run \
@@ -98,14 +99,10 @@ __enter() { # enter the chroot from within the mount mamespace
 			"chroot/home/$user/.Downloads" ||
 		error "can't bind Downloads"
 	fi
-	# On Fedora Silverblue mirror toolbox
-	if grep -q OSTREE_VERSION /etc/os-release ; then
-		for i in /run/host /run/host/var /run/host/var/srv ; do
-			test -d chroot/$i || mkdir chroot/$i
-		done
-		mount -o bind "/var/srv" \
-			"chroot/run/host/var/srv" ||
-		error "can't bind var/srv"
+	if test -S /var/run/docker.sock ; then
+		mount -o bind /var/run/docker.sock \
+			chroot/var/run/docker.sock ||
+		error "can't bind docker.sock"
 	fi
 	if grep -q "$user" chroot/etc/passwd ; then
 		exec chroot chroot/ su -l "$user"
