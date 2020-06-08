@@ -99,6 +99,11 @@ __enter() { # enter the chroot from within the mount mamespace
 			"chroot/home/$user/.Downloads" ||
 		error "can't bind Downloads"
 	fi
+	if test -S /var/run/docker.sock ; then
+		mount -o bind /var/run/docker.sock \
+			chroot/var/run/docker.sock ||
+		error "can't bind docker.sock"
+	fi
 	if grep -q "$user" chroot/etc/passwd ; then
 		exec chroot chroot/ su -l "$user"
 	else
