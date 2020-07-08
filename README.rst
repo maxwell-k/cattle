@@ -10,7 +10,7 @@ Includes:
 - ``git``
 - ``openssh`` client utilities
 - ``sudo``
-- ``ansible`` version 2.4
+- ``ansible``
 - ``curl``
 
 The script follows the `official instructions`_ for installing Ansible on
